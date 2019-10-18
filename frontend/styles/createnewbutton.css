@@ -1,0 +1,39 @@
+:host(.createnew) [part="prefix"] ::slotted(iron-icon) {
+	margin: 0;
+}
+
+:host(.createnew) {
+	
+	position: absolute;
+    bottom: 60px;
+    right: 60px;
+	
+	background-color: var(--material-primary-color);
+    border-radius: 30px;
+    
+    	cursor: pointer;
+	width: 60px;
+    height: 60px;
+    min-width: 60px;
+}
+
+@media (max-width: 700px) {
+:host(.createnew) {
+    bottom: 60px;
+    right: 12px;
+}
+}
+
+:host(.createnew) .vaadin-button-container {
+	justify-content: center;
+	
+}
+
+:host(.pureicon) {
+	margin: 0;
+    min-width: 16px;
+}
+
+:host(.pureicon) .vaadin-button-container ::slotted(iron-icon){
+	margin: 0;
+}

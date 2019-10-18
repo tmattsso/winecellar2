@@ -1,0 +1,17 @@
+
+:host([theme~="fullwidth"]) [part="overlay"] {
+	max-width: 700px;
+	width: 98%;
+}
+:host([theme~="fullwidth"]) [part="content"] {
+	padding: 12px;
+}
+
+:host [part="overlay"] {
+	max-height: 80%;
+}
+
+span {
+	align-self: center;
+}
+

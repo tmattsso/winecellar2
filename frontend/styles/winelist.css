@@ -1,0 +1,10 @@
+
+
+vaadin-horizontal-layout.winelist-item {
+	width: 100%;
+}
+
+vaadin-horizontal-layout.winelist-item label {
+	margin: 0;
+	align-self: center;
+}

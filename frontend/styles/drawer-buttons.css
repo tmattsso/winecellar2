@@ -1,0 +1,11 @@
+
+:host(.drawerbutton) .vaadin-button-container {
+	justify-content: left;
+	padding-top: 10px;
+	padding-left: 10px;
+}
+
+:host(.drawerbutton) {
+	cursor: pointer;
+}
+

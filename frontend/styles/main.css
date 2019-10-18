@@ -1,0 +1,26 @@
+
+html {
+	
+	--material-primary-color: DarkRed;
+	--material-primary-text-color: DarkRed;
+	
+	--material-body-text-color: DarkRed;
+}
+
+body {
+	color: --material-body-text-color;
+}
+
+.main-panel-content-wrapper {
+
+	width: 100%;
+	max-width: 700px;
+	position:relative;
+}
+
+.main-panel-content-wrapper .in-list-button {
+	
+	position: absolute;
+    top: auto;
+    right: 30px;
+}
