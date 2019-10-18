@@ -10,3 +10,8 @@ buildNumber.properties
 
 # Avoid ignoring Maven wrapper jar file (.jar files are usually ignored)
 !/.mvn/wrapper/maven-wrapper.jar
+
+
+node_modules/
+webpack.generated.js
+webpack.config.js
