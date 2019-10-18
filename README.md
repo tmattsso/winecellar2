@@ -1,11 +1,6 @@
-# Project Base for Vaadin Flow and Spring Boot
+# WineCellar V2.0
 
-This project can be used as a starting point to create your own Vaadin Flow application with Spring Boot.
-It contains all the necessary configuration and some placeholder files to get you started.
-
-The best way to use it by via [vaadin.com/start](https://vaadin.com/start) - you can get only the necessary parts and choose the package naming you want to use.
-
-Import the project to the IDE of your choosing as a Maven project. 
+Hobby project for testing Vaadin 14 (and manage my cellar...)
 
 Run application using `mvn spring-boot:run` or directly running Application class from your IDE. 
 
