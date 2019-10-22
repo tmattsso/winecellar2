@@ -1,5 +1,7 @@
 package org.thomas.winecellar.ui;
 
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
@@ -8,6 +10,8 @@ import org.thomas.winecellar.ui.components.WineInListsDialog;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -18,6 +22,7 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.spring.annotation.UIScope;
 
 @Route(value = "wine", layout = MainView.class)
+@CssImport("./styles/winedetails.css")
 @UIScope
 public class WineDetailsView extends VerticalLayout implements HasUrlParameter<Long>, HasViewTitle {
 
@@ -36,6 +41,7 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 
 	public WineDetailsView() {
 
+		addClassName("winedetails");
 	}
 
 	@Override
@@ -72,17 +78,28 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 		add.addClassName("in-list-button");
 		add(add);
 
-		Span l = new Span(String.format("Producer: %s", wine.getProducer().getName()));
-		add(l);
-
-		l = new Span(String.format("Type: %s", wine.getType().toString()));
-		add(l);
+		addSection("Producer:", wine.getProducer().getName());
+		addSection("Type:", wine.getType().toString());
+		addSection("Grapes:", wine.getGrapes().stream().collect(Collectors.joining(", ")));
+		addSection("Country:", wine.getCountry());
+		addSection("Region:", wine.getRegion());
+		addSection("Subregion:", wine.getSubregion());
 
 		// final Image img = new Image(
 		// "https://images.alko.fi/images/cs_srgb,f_auto,t_medium/cdn/480617/querciabella-chianti-classico-2016.jpg",
 		// "le wine");
 		// img.setHeight("200px");
 		// add(img);
+	}
+
+	private void addSection(String titleText, String contentText) {
+
+		final Div title = new Div(new Span(titleText));
+		final Div content = new Div(new Span(contentText));
+
+		final Div div = new Div(title, content);
+		div.addClassName("inforow");
+		add(div);
 	}
 
 	@Override

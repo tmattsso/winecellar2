@@ -1,13 +1,16 @@
 package org.thomas.winecellar.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
+import org.thomas.winecellar.data.NamedEntity;
 import org.thomas.winecellar.data.Producer;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
@@ -37,12 +40,11 @@ public class WineService {
 		return wines.stream().filter(w -> p.equals(w.getProducer())).sorted().collect(Collectors.toList());
 	}
 
-	public List<Wine> search(String searchTerms, String producerId, String type) {
+	public List<Wine> search(final String searchTerms, String producerId, String type) {
 
 		if (searchTerms == null) {
 			return new ArrayList<>();
 		}
-		final String lowercasename = searchTerms.toLowerCase();
 
 		Long pId;
 		if (producerId != null && !producerId.isEmpty()) {
@@ -75,12 +77,42 @@ public class WineService {
 			}
 		}).filter(w -> {
 
-			final boolean nameMatch = w.getName().toLowerCase().contains(lowercasename);
-			final boolean producerMatch = w.getProducer() != null
-					&& w.getProducer().getName().toLowerCase().contains(lowercasename);
+			final boolean nameMatch = match(searchTerms, w.getName());
+			final boolean producerMatch = match(searchTerms, w.getProducer());
+			final boolean countryMatch = match(searchTerms, w.getCountry());
+			final boolean regionMatch = match(searchTerms, w.getRegion());
+			final boolean subregionMatch = match(searchTerms, w.getSubregion());
+			final boolean grapeMatch = match(searchTerms, w.getGrapes());
 
-			return nameMatch || producerMatch;
+			return nameMatch || producerMatch || countryMatch || regionMatch || subregionMatch || grapeMatch;
 		}).sorted().collect(Collectors.toList());
+	}
+
+	private static boolean match(String searchTerm, String compare) {
+		if (searchTerm == null || compare == null) {
+			return false;
+		}
+
+		compare = compare.toLowerCase();
+		searchTerm = searchTerm.toLowerCase();
+
+		compare = StringUtils.stripAccents(compare);
+
+		return compare.contains(searchTerm);
+	}
+
+	private static boolean match(String searchTerm, NamedEntity compare) {
+		if (compare == null) {
+			return false;
+		}
+		return match(searchTerm, compare.getName());
+	}
+
+	private static boolean match(String searchTerm, Collection<?> compare) {
+		if (compare == null) {
+			return false;
+		}
+		return match(searchTerm, compare.toString());
 	}
 
 	public List<Producer> getProducers() {
@@ -122,6 +154,21 @@ public class WineService {
 			return;
 		}
 		selectedList.getWines().remove(wine);
+	}
+
+	public List<String> getCountries() {
+		return wines.stream().map(w -> w.getCountry()).filter(s -> s != null).distinct().sorted()
+				.collect(Collectors.toList());
+	}
+
+	public List<String> getRegions() {
+		return wines.stream().map(w -> w.getRegion()).filter(s -> s != null).distinct().sorted()
+				.collect(Collectors.toList());
+	}
+
+	public List<String> getSubregions() {
+		return wines.stream().map(w -> w.getSubregion()).filter(s -> s != null).distinct().sorted()
+				.collect(Collectors.toList());
 	}
 
 }

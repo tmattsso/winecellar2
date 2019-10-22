@@ -7,4 +7,15 @@ vaadin-horizontal-layout.winelist-item {
 vaadin-horizontal-layout.winelist-item label {
 	margin: 0;
 	align-self: center;
+	
+	margin-left: auto;
+    text-align: center;
+    min-width: 24px;
+    padding-left: 2px;
+}
+
+vaadin-horizontal-layout.winelist-item .amountButton {
+	
+	margin-left: auto;
+    min-width: 34px;
 }

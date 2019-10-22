@@ -1,5 +1,8 @@
 package org.thomas.winecellar.data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.validation.constraints.NotNull;
 
 public class Wine extends NamedEntity {
@@ -9,6 +12,13 @@ public class Wine extends NamedEntity {
 
 	@NotNull
 	private WineType type;
+
+	private String alko_id;
+
+	private String country;
+	private String region;
+	private String subregion;
+	private List<String> grapes = new ArrayList<String>();
 
 	public Wine(String name, Producer prod, WineType type) {
 		super(name);
@@ -47,5 +57,45 @@ public class Wine extends NamedEntity {
 
 	public void setType(WineType type) {
 		this.type = type;
+	}
+
+	public String getAlko_id() {
+		return alko_id;
+	}
+
+	public void setAlko_id(String alko_id) {
+		this.alko_id = alko_id;
+	}
+
+	public String getSubregion() {
+		return subregion;
+	}
+
+	public void setSubregion(String subregion) {
+		this.subregion = subregion;
+	}
+
+	public String getRegion() {
+		return region;
+	}
+
+	public void setRegion(String region) {
+		this.region = region;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public List<String> getGrapes() {
+		return grapes;
+	}
+
+	public void setGrapes(List<String> grapes) {
+		this.grapes = grapes;
 	}
 }

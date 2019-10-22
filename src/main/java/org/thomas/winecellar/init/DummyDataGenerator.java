@@ -2,7 +2,9 @@ package org.thomas.winecellar.init;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -37,6 +39,19 @@ public class DummyDataGenerator {
 
 	long id = 0;
 	Map<String, Producer> producers = new HashMap<String, Producer>();
+
+	final int COL_ID = 0;
+	final int COL_NAME = 1;
+	final int COL_PROD = 2;
+	final int COL_SIZE = 3;
+	final int COL_PRICE = 4;
+	final int COL_TYPE = 8;
+	final int COL_COUNTRY = 11;
+	final int COL_REGION = 12;
+	final int COL_YEAR = 13;
+	final int COL_REGION2 = 14;
+	final int COL_GRAPES = 16;
+	final int COL_NOTES = 17;
 
 	@EventListener
 	public void generate(ContextStartedEvent ctxStartEvt) {
@@ -116,15 +131,16 @@ public class DummyDataGenerator {
 
 			final Row row = sheet.getRow(i);
 
-			final Cell cell = row.getCell(8);
+			final Cell cell = row.getCell(COL_TYPE);
 			if (cell == null) {
 				continue;
 			}
 
 			final String typeString = cell.getStringCellValue();
-			if (types.keySet().contains(typeString)) {
+			final String sizeString = row.getCell(COL_SIZE).getStringCellValue();
+			if (types.keySet().contains(typeString) && "0,75 l".equals(sizeString)) {
 
-				final String producerName = row.getCell(2).getStringCellValue();
+				final String producerName = row.getCell(COL_PROD).getStringCellValue();
 				Producer prod = producers.get(producerName);
 				if (prod == null) {
 					prod = new Producer(producerName);
@@ -132,14 +148,40 @@ public class DummyDataGenerator {
 					producers.put(producerName, prod);
 				}
 
-				final String wineName = row.getCell(1).getStringCellValue();
+				final String wineName = row.getCell(COL_NAME).getStringCellValue();
 
-				createWine(wineName, prod, types.get(typeString));
+				final Wine wine = createWine(wineName, prod, types.get(typeString));
+
+				wine.setAlko_id(getCell(row, COL_ID));
+				wine.setCountry(getCell(row, COL_COUNTRY));
+				wine.setRegion(getCell(row, COL_REGION));
+				wine.setSubregion(getCell(row, COL_REGION2));
+
+				final String grapes = getCell(row, COL_GRAPES);
+
+				if (grapes != null) {
+					final List<String> grapeset = new ArrayList<>();
+					wine.setGrapes(grapeset);
+					for (String sub : grapes.split(",")) {
+						sub = sub.trim();
+						if (sub.isEmpty()) {
+							continue;
+						}
+						grapeset.add(sub);
+					}
+				}
+
 				numAdded++;
 			}
 
 		}
 		LOG.info(String.format("imported %d wines from alko list", numAdded));
+	}
+
+	private static String getCell(Row row, int col) {
+		final Cell cell = row.getCell(col);
+
+		return cell == null ? null : cell.getStringCellValue();
 	}
 
 }

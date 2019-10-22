@@ -8,7 +8,7 @@ html {
 }
 
 body {
-	color: --material-body-text-color;
+	color: var(--material-body-text-color);
 }
 
 .main-panel-content-wrapper {
@@ -18,9 +18,7 @@ body {
 	position:relative;
 }
 
-.main-panel-content-wrapper .in-list-button {
-	
-	position: absolute;
-    top: auto;
-    right: 30px;
+.searchbutton {
+	max-width: 26px;
+	min-width: 26px;
 }

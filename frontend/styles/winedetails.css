@@ -1,0 +1,30 @@
+
+
+@media (max-width: 700px) {
+h3 {
+	max-width: 182px;
+}
+}
+
+.in-list-button {
+	
+	position: absolute;
+    top: 20px;
+    right: 30px;
+}
+
+.inforow {
+	position: relative;
+	width: 100%;
+}
+.inforow div:first-child {
+	font-weight: bolder;
+    margin-right: 5px;
+    font-size: var(--material-small-font-size);
+    position: absolute;
+    padding-top: 2px;
+}
+.inforow div:last-child {
+    padding-left: 100px;
+    display: inline-block;
+}
