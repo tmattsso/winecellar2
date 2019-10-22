@@ -1,6 +1,6 @@
 # WineCellar V2.0
 
-Hobby project for testing Vaadin 14 (and manage my cellar...)
+Hobby project for testing Vaadin 14 (and managing my cellar...)
 
 Run application using `mvn spring-boot:run` or directly running Application class from your IDE. 
 
@@ -12,3 +12,19 @@ For documentation on using Vaadin Flow and Spring, visit [vaadin.com/docs](https
 
 For more information on Vaadin Flow, visit https://vaadin.com/flow.
 
+## TODO:
+
+- move to in-memory Spring Data
+- update to 14.1
+
+- add flyway
+- deploy to Heroku
+
+- add wine edit admin panel
+- add user registration
+- add user login (pin enough?)
+- add vintage reviews
+- add user wine list export
+- add Alko scraping / xlsx parsing 
+ - https://www.alko.fi/INTERSHOP/static/WFS/Alko-OnlineShop-Site/-/Alko-OnlineShop/fi_FI/Alkon%20Hinnasto%20Tekstitiedostona/alkon-hinnasto-tekstitiedostona.xlsx
+- investigate theme issues

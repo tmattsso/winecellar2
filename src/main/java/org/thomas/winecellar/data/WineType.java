@@ -2,7 +2,7 @@ package org.thomas.winecellar.data;
 
 public enum WineType {
 
-	WHITE, RED, BUBBLY, DESSERT;
+	WHITE, RED, BUBBLY, DESSERT, ROSE;
 
 	@Override
 	public String toString() {

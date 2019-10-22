@@ -1,0 +1,5 @@
+
+
+:host(.searchgrid)  [part~="body-cell"] ::slotted(vaadin-grid-cell-content){
+	padding: 6px 8px;
+}

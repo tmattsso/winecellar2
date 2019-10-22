@@ -1,5 +1,15 @@
 package org.thomas.winecellar.init;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +36,7 @@ public class DummyDataGenerator {
 	UserService users;
 
 	long id = 0;
+	Map<String, Producer> producers = new HashMap<String, Producer>();
 
 	@EventListener
 	public void generate(ContextStartedEvent ctxStartEvt) {
@@ -47,19 +58,16 @@ public class DummyDataGenerator {
 
 		createLotsaLists(u, true);
 
-		final Producer cs = createProducer("Charles Smith Wines");
-		createWine("Substance CS", cs, WineType.RED);
-		cellar.put(createWine("Stoneridge CS", cs, WineType.RED), 3);
-		createWine("Kung Fu Girl", cs, WineType.WHITE);
-
-		final Producer ch = createProducer("Charles Heidsick");
-		createWine("Vintage 2001", ch, WineType.BUBBLY);
-		wish.put(createWine("Rosé Vintage 1999", ch, WineType.BUBBLY));
-		createWine("Cuvee NV", ch, WineType.BUBBLY);
-
 		final Producer sl = createProducer("Stags Leap");
 		cellar.put(createWine("The Investor", sl, WineType.RED));
 		wish.put(createWine("Artemis", sl, WineType.RED));
+
+		try {
+			initAlkoData();
+		} catch (final IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		LOG.info("Dummy data done.");
 	}
@@ -89,6 +97,49 @@ public class DummyDataGenerator {
 		final Producer prod = new Producer(name);
 		prod.setId(++id);
 		return prod;
+	}
+
+	private void initAlkoData() throws IOException {
+		final Workbook w = WorkbookFactory
+				.create(new File("/Users/thomas/Work/Personal/WineCellar2/alkon-hinnasto-tekstitiedostona.xlsx"));
+
+		final Sheet sheet = w.getSheetAt(0);
+
+		final Map<String, WineType> types = new HashMap<>();
+		types.put("punaviinit", WineType.RED);
+		types.put("valkoviinit", WineType.WHITE);
+		types.put("roseviinit", WineType.ROSE);
+		types.put("kuohuviinit & samppanjat", WineType.BUBBLY);
+
+		int numAdded = 0;
+		for (int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
+
+			final Row row = sheet.getRow(i);
+
+			final Cell cell = row.getCell(8);
+			if (cell == null) {
+				continue;
+			}
+
+			final String typeString = cell.getStringCellValue();
+			if (types.keySet().contains(typeString)) {
+
+				final String producerName = row.getCell(2).getStringCellValue();
+				Producer prod = producers.get(producerName);
+				if (prod == null) {
+					prod = new Producer(producerName);
+					prod.setId(++id);
+					producers.put(producerName, prod);
+				}
+
+				final String wineName = row.getCell(1).getStringCellValue();
+
+				createWine(wineName, prod, types.get(typeString));
+				numAdded++;
+			}
+
+		}
+		LOG.info(String.format("imported %d wines from alko list", numAdded));
 	}
 
 }

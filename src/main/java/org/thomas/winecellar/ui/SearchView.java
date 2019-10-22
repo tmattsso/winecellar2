@@ -16,6 +16,7 @@ import com.vaadin.flow.component.accordion.AccordionPanel;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
@@ -26,6 +27,7 @@ import com.vaadin.flow.router.Route;
 
 @Route(value = "search", layout = MainView.class)
 @CssImport(value = "./styles/search-accordion.css", themeFor = "vaadin-accordion")
+@CssImport(value = "./styles/search-grid.css", themeFor = "vaadin-grid")
 public class SearchView extends VerticalLayout implements HasViewTitle, AfterNavigationObserver {
 
 	private static final long serialVersionUID = -3913509714364345226L;
@@ -70,11 +72,13 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 
 		results = new Grid<>();
 		results.setWidth("100%");
+		results.addClassName("searchgrid");
 		results.getStyle().set("flex-grow", "1");
+		results.addThemeVariants(GridVariant.LUMO_COMPACT);
 
-		results.addColumn(Wine::getName).setHeader("Wine");
+		results.addColumn(Wine::getName).setHeader("Wine").setWidth("50%");
 		results.addColumn(w -> w.getProducer() == null ? "N/A" : w.getProducer().getName()).setHeader("Producer");
-		results.addColumn(w -> w.getType().toString()).setHeader("Type");
+		results.addColumn(w -> w.getType().toString()).setHeader("Type").setAutoWidth(true);
 
 		add(results);
 
@@ -166,7 +170,7 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		if (p.isEmpty()) {
 			filterProducer.clear();
 		} else {
-			final long id = Long.valueOf(t);
+			final long id = Long.valueOf(p);
 			final Producer producer = service.getProducerById(id);
 			filterProducer.setValue(producer);
 		}
