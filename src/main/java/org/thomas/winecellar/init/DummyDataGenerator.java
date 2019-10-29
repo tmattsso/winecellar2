@@ -2,11 +2,13 @@ package org.thomas.winecellar.init;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,6 +25,7 @@ import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
 import org.thomas.winecellar.data.WineType;
+import org.thomas.winecellar.repo.ProducerRepo;
 import org.thomas.winecellar.service.UserService;
 import org.thomas.winecellar.service.WineService;
 
@@ -37,7 +40,9 @@ public class DummyDataGenerator {
 	@Autowired
 	UserService users;
 
-	long id = 0;
+	@Autowired
+	ProducerRepo producerRepo;
+
 	Map<String, Producer> producers = new HashMap<String, Producer>();
 
 	final int COL_ID = 0;
@@ -56,33 +61,28 @@ public class DummyDataGenerator {
 	@EventListener
 	public void generate(ContextStartedEvent ctxStartEvt) {
 
+		final User currentUser = users.getCurrentUser();
+		if (currentUser != null) {
+			return;
+		}
+
 		LOG.info("Creating dummy data...");
-
-		final WineList cellar = new WineList();
-		cellar.setName("Cellar List");
-		cellar.setId(++id);
-		final WineList wish = new WineList();
-		wish.setName("Wish List");
-		wish.setId(++id);
-
-		final User u = new User();
-		u.setName("Thomas");
-		u.setCellarList(cellar);
-		u.addWishList(wish);
-		users.addUser(u);
-
-		createLotsaLists(u, true);
-
-		final Producer sl = createProducer("Stags Leap");
-		cellar.put(createWine("The Investor", sl, WineType.RED));
-		wish.put(createWine("Artemis", sl, WineType.RED));
 
 		try {
 			initAlkoData();
 		} catch (final IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		final WineList wish = new WineList();
+		wish.setName("Wish List");
+
+		User u = new User();
+		u.setName("Thomas");
+		u.addWishList(wish);
+		u = users.addUser(u);
+
+		createLotsaLists(u, true);
 
 		LOG.info("Dummy data done.");
 	}
@@ -92,31 +92,21 @@ public class DummyDataGenerator {
 			return;
 		}
 
-		for (int i = 0; i < 30; i++) {
+		for (int i = 0; i < 15; i++) {
 			final WineList cellar = new WineList();
 			cellar.setName("Wish list " + i);
-			cellar.setId(++id);
 
-			u.addWishList(cellar);
+			users.addWishList(cellar);
 		}
 	}
 
-	private Wine createWine(String name, final Producer cs, WineType type) {
-		final Wine w = new Wine(name, cs, type);
-		w.setId(++id);
-		service.addWine(w);
-		return w;
-	}
-
-	private Producer createProducer(String name) {
-		final Producer prod = new Producer(name);
-		prod.setId(++id);
-		return prod;
-	}
-
 	private void initAlkoData() throws IOException {
-		final Workbook w = WorkbookFactory
-				.create(new File("/Users/thomas/Work/Personal/WineCellar2/alkon-hinnasto-tekstitiedostona.xlsx"));
+		final String URL = "https://www.alko.fi/INTERSHOP/static/WFS/Alko-OnlineShop-Site/-/Alko-OnlineShop/fi_FI/Alkon%20Hinnasto%20Tekstitiedostona/alkon-hinnasto-tekstitiedostona.xlsx";
+
+		final File tempFile = File.createTempFile("alkofile", "xlsx");
+		FileUtils.copyURLToFile(new URL(URL), tempFile, 1000, 1000);
+
+		final Workbook w = WorkbookFactory.create(tempFile);
 
 		final Sheet sheet = w.getSheetAt(0);
 
@@ -144,13 +134,13 @@ public class DummyDataGenerator {
 				Producer prod = producers.get(producerName);
 				if (prod == null) {
 					prod = new Producer(producerName);
-					prod.setId(++id);
+					prod = producerRepo.save(prod);
 					producers.put(producerName, prod);
 				}
 
 				final String wineName = row.getCell(COL_NAME).getStringCellValue();
 
-				final Wine wine = createWine(wineName, prod, types.get(typeString));
+				final Wine wine = new Wine(wineName, prod, types.get(typeString));
 
 				wine.setAlko_id(getCell(row, COL_ID));
 				wine.setCountry(getCell(row, COL_COUNTRY));
@@ -171,10 +161,14 @@ public class DummyDataGenerator {
 					}
 				}
 
+				service.addWine(wine);
+
 				numAdded++;
 			}
 
 		}
+
+		w.close();
 		LOG.info(String.format("imported %d wines from alko list", numAdded));
 	}
 

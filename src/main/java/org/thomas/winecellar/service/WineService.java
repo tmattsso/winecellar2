@@ -2,33 +2,44 @@ package org.thomas.winecellar.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 import org.thomas.winecellar.data.NamedEntity;
 import org.thomas.winecellar.data.Producer;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
+import org.thomas.winecellar.repo.ProducerRepo;
+import org.thomas.winecellar.repo.WineListRepo;
+import org.thomas.winecellar.repo.WineRepository;
 
 @Service
 @ApplicationScope
 public class WineService {
 
-	private final List<Wine> wines = new ArrayList<>();
+	@Autowired
+	private WineRepository repo;
+
+	@Autowired
+	private WineListRepo listRepo;
+
+	@Autowired
+	private ProducerRepo producers;
 
 	public List<Wine> getWines() {
-		return Collections.unmodifiableList(wines);
+
+		final List<Wine> wines = new ArrayList<>();
+		wines.addAll((Collection<? extends Wine>) repo.findAll());
+		return wines;
 	}
 
-	public void addWine(Wine toAdd) {
-		synchronized (wines) {
-			wines.add(toAdd);
-		}
+	public Wine addWine(Wine toAdd) {
+		return repo.save(toAdd);
 	}
 
 	public List<Wine> getByProducer(Producer p) {
@@ -37,7 +48,7 @@ public class WineService {
 			return new ArrayList<>();
 		}
 
-		return wines.stream().filter(w -> p.equals(w.getProducer())).sorted().collect(Collectors.toList());
+		return repo.findByProducer(p);
 	}
 
 	public List<Wine> search(final String searchTerms, String producerId, String type) {
@@ -53,6 +64,7 @@ public class WineService {
 			pId = null;
 		}
 
+		final List<Wine> wines = getWines();
 		return wines.stream().filter(w -> w.getName() != null).filter(w -> {
 
 			if (pId == null) {
@@ -116,18 +128,15 @@ public class WineService {
 	}
 
 	public List<Producer> getProducers() {
-
-		return wines.stream().map(w -> w.getProducer()).filter(p -> p != null).distinct().sorted()
-				.collect(Collectors.toList());
+		return (List<Producer>) producers.findAll();
 	}
 
 	public Wine getById(Long id) {
-		return wines.stream().filter(w -> w.getId() == id).findFirst().orElse(null);
+		return repo.findById(id).orElse(null);
 	}
 
 	public Producer getProducerById(long id) {
-		return wines.stream().map(w -> w.getProducer()).filter(p -> p != null && p.getId() == id).findFirst()
-				.orElse(null);
+		return producers.findById(id).orElse(null);
 
 	}
 
@@ -146,6 +155,9 @@ public class WineService {
 		existing = Math.max(existing, 0);
 
 		selectedList.getWines().put(wine, existing);
+
+		listRepo.save(selectedList);
+
 		return existing;
 	}
 
@@ -154,20 +166,21 @@ public class WineService {
 			return;
 		}
 		selectedList.getWines().remove(wine);
+		listRepo.save(selectedList);
 	}
 
 	public List<String> getCountries() {
-		return wines.stream().map(w -> w.getCountry()).filter(s -> s != null).distinct().sorted()
+		return getWines().stream().map(w -> w.getCountry()).filter(s -> s != null).distinct().sorted()
 				.collect(Collectors.toList());
 	}
 
 	public List<String> getRegions() {
-		return wines.stream().map(w -> w.getRegion()).filter(s -> s != null).distinct().sorted()
+		return getWines().stream().map(w -> w.getRegion()).filter(s -> s != null).distinct().sorted()
 				.collect(Collectors.toList());
 	}
 
 	public List<String> getSubregions() {
-		return wines.stream().map(w -> w.getSubregion()).filter(s -> s != null).distinct().sorted()
+		return getWines().stream().map(w -> w.getSubregion()).filter(s -> s != null).distinct().sorted()
 				.collect(Collectors.toList());
 	}
 

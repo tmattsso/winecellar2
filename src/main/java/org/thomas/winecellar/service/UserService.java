@@ -1,31 +1,49 @@
 package org.thomas.winecellar.service;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.ApplicationScope;
 import org.springframework.web.context.annotation.SessionScope;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.WineList;
+import org.thomas.winecellar.repo.UserRepository;
+import org.thomas.winecellar.repo.WineListRepo;
 
 @Service
-@ApplicationScope
 public class UserService {
 
-	private final List<User> users = new ArrayList<>();
+	@Autowired
+	private UserRepository repo;
 
-	public void addUser(User user) {
-		users.add(user);
+	@Autowired
+	private WineListRepo listRepo;
+
+	public User addUser(User user) {
+
+		if (user.getCellarList() == null) {
+			final WineList cellarList = new WineList();
+			cellarList.setName("Cellar List");
+			user.setCellarList(cellarList);
+		}
+
+		user = repo.save(user);
+		System.out.println("Created user " + user);
+		return user;
 	}
 
 	@Bean
 	@SessionScope
 	public User getCurrentUser() {
-		return users.get(0);
+		final Iterator<User> iterator = repo.findAll().iterator();
+		if (!iterator.hasNext()) {
+			return null;
+		}
+		return iterator.next();
 	}
 
 	public void removeList(WineList list) {
@@ -34,7 +52,7 @@ public class UserService {
 
 	public WineList createList(String name) {
 
-		if (nameInvalid(name)) {
+		if (listNameInvalid(name)) {
 			return null;
 		}
 
@@ -49,7 +67,7 @@ public class UserService {
 
 	public WineList renameList(WineList list, String name) {
 
-		if (nameInvalid(name)) {
+		if (listNameInvalid(name)) {
 			return null;
 		}
 
@@ -57,7 +75,7 @@ public class UserService {
 		return list;
 	}
 
-	private boolean nameInvalid(String name) {
+	private boolean listNameInvalid(String name) {
 		if (name == null || name.isEmpty()) {
 			return true;
 		}
@@ -68,6 +86,15 @@ public class UserService {
 			return true;
 		}
 		return false;
+	}
+
+	public void addWishList(WineList cellar) {
+
+		cellar = listRepo.save(cellar);
+
+		final User user = getCurrentUser();
+		user.addWishList(cellar);
+		repo.save(user);
 	}
 
 }

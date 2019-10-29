@@ -3,14 +3,24 @@ package org.thomas.winecellar.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
 import javax.validation.constraints.NotNull;
 
+@Entity
 public class Wine extends NamedEntity {
 
 	@NotNull
+	@OneToOne
 	private Producer producer;
 
 	@NotNull
+	@Enumerated(EnumType.STRING)
 	private WineType type;
 
 	private String alko_id;
@@ -18,6 +28,9 @@ public class Wine extends NamedEntity {
 	private String country;
 	private String region;
 	private String subregion;
+
+	@ElementCollection(fetch = FetchType.EAGER)
+	@OrderColumn(name = "listorder")
 	private List<String> grapes = new ArrayList<String>();
 
 	public Wine(String name, Producer prod, WineType type) {

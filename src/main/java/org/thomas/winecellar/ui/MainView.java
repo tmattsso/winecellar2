@@ -23,8 +23,10 @@ import com.vaadin.flow.theme.material.Material;
 @Theme(Material.class)
 public class MainView extends AppLayout {
 
-	private static final String TITLE_DEFAULT = "WineCellar v2.0";
 	private static final long serialVersionUID = -2453134437569568704L;
+
+	private static final String TITLE_DEFAULT = "WineCellar v2.0";
+
 	private final Label title;
 
 	@Autowired
@@ -40,7 +42,7 @@ public class MainView extends AppLayout {
 
 		addToNavbar(true, new DrawerToggle(), title, search);
 
-		addToDrawer(new DrawerComponent("My Cellar", VaadinIcon.LIST.create(),
+		addToDrawer(new DrawerComponent("My Cellar", VaadinIcon.OPEN_BOOK.create(),
 				() -> UI.getCurrent().navigate(WineListView.class)));
 
 		addToDrawer(new DrawerComponent("My Wishlists", VaadinIcon.STAR.create(),

@@ -3,14 +3,26 @@ package org.thomas.winecellar.data;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.OrderColumn;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+@Entity
+@Table(name = "winedrinkers")
 public class User extends NamedEntity {
 
 	@NotNull
+	@OneToOne(cascade = CascadeType.ALL)
 	private WineList cellarList;
 
 	@NotNull
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+	@OrderColumn(name = "listorder")
 	private List<WineList> wishlists = new ArrayList<>();
 
 	public WineList getCellarList() {
@@ -34,22 +46,22 @@ public class User extends NamedEntity {
 	}
 
 	public WineList inWishList(Wine w) {
-		return wishlists.stream().filter(l -> l.has(w)).findFirst().orElse(null);
+		return getWishlists().stream().filter(l -> l.has(w)).findFirst().orElse(null);
 	}
 
 	public void addWishList(WineList list) {
-		if (!wishlists.contains(list)) {
-			wishlists.add(list);
+		if (!getWishlists().contains(list)) {
+			getWishlists().add(list);
 		}
 	}
 
 	public void removeWishList(WineList list) {
-		wishlists.remove(list);
+		getWishlists().remove(list);
 	}
 
 	public WineList inWishList(Long wineId) {
 
-		for (final WineList l : wishlists) {
+		for (final WineList l : getWishlists()) {
 			for (final Wine wine : l.getWines().keySet()) {
 				if (wine.getId() == wineId) {
 					return l;
@@ -60,6 +72,6 @@ public class User extends NamedEntity {
 	}
 
 	public WineList getWishList(Long listId) {
-		return wishlists.stream().filter(l -> l.getId() == listId).findAny().orElse(null);
+		return getWishlists().stream().filter(l -> l.getId() == listId).findAny().orElse(null);
 	}
 }

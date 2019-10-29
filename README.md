@@ -14,7 +14,6 @@ For more information on Vaadin Flow, visit https://vaadin.com/flow.
 
 ## TODO:
 
-- move to in-memory Spring Data
 - update to 14.1
 
 - add flyway
@@ -25,6 +24,4 @@ For more information on Vaadin Flow, visit https://vaadin.com/flow.
 - add user login (pin enough?)
 - add vintage reviews
 - add user wine list export
-- add Alko scraping / xlsx parsing 
- - https://www.alko.fi/INTERSHOP/static/WFS/Alko-OnlineShop-Site/-/Alko-OnlineShop/fi_FI/Alkon%20Hinnasto%20Tekstitiedostona/alkon-hinnasto-tekstitiedostona.xlsx
 - investigate theme issues

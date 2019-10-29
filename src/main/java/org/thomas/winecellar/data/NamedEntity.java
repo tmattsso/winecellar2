@@ -1,7 +1,9 @@
 package org.thomas.winecellar.data;
 
+import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
+@MappedSuperclass
 public abstract class NamedEntity extends AbstractEntity implements Comparable<NamedEntity> {
 
 	@NotNull

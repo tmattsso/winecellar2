@@ -3,11 +3,16 @@ package org.thomas.winecellar.data;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.persistence.ElementCollection;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.validation.constraints.NotNull;
 
+@Entity
 public class WineList extends NamedEntity {
 
 	@NotNull
+	@ElementCollection(fetch = FetchType.EAGER)
 	private Map<Wine, Integer> wines = new HashMap<>();
 
 	public Map<Wine, Integer> getWines() {
