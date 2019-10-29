@@ -31,14 +31,23 @@ public class WineService {
 	@Autowired
 	private ProducerRepo producers;
 
+	private List<Wine> CACHE;
+
 	public List<Wine> getWines() {
 
-		final List<Wine> wines = new ArrayList<>();
-		wines.addAll((Collection<? extends Wine>) repo.findAll());
-		return wines;
+		if (CACHE != null) {
+			return CACHE;
+		}
+
+		CACHE = new ArrayList<>();
+		CACHE.addAll((Collection<? extends Wine>) repo.findAll());
+		return CACHE;
 	}
 
 	public Wine addWine(Wine toAdd) {
+
+		CACHE = null;
+
 		return repo.save(toAdd);
 	}
 

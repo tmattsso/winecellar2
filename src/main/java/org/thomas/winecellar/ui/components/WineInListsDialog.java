@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
+import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.service.UserService;
 import org.thomas.winecellar.service.WineService;
 import org.thomas.winecellar.ui.WineListView;
@@ -37,7 +38,7 @@ public class WineInListsDialog extends Dialog {
 	private UserService uservice;
 
 	@Autowired
-	private User currentUser;
+	private CurrentUserProvider currentUser;
 
 	private Wine wine;
 	private Runnable callback;
@@ -66,8 +67,9 @@ public class WineInListsDialog extends Dialog {
 		row.setHeight("36px");
 		vl.add(row);
 
-		if (currentUser.getCellarList().has(wine)) {
-			final Integer amount = currentUser.getCellarList().get(wine);
+		final User user = currentUser.get();
+		if (user.getCellarList().has(wine)) {
+			final Integer amount = user.getCellarList().get(wine);
 			row.add(span(String.format("You have %d bottle%s!", amount, amount > 1 ? "s" : "")));
 			final Button gotoList = new Button("Go to list", VaadinIcon.ARROW_FORWARD.create(),
 					e -> UI.getCurrent().navigate(WineListView.class));
@@ -82,7 +84,7 @@ public class WineInListsDialog extends Dialog {
 			nf.setWidth("2em");
 			row.add(nf);
 			final Button addToList = new Button("Add", VaadinIcon.PLUS.create(),
-					e -> addToList(currentUser.getCellarList(), nf.getValue()));
+					e -> addToList(user.getCellarList(), nf.getValue()));
 			addToList.addThemeVariants(ButtonVariant.MATERIAL_CONTAINED);
 			row.add(addToList);
 		}
@@ -99,7 +101,7 @@ public class WineInListsDialog extends Dialog {
 		vl.add(scrollWrapper);
 		vl.setFlexGrow(1, scrollWrapper);
 
-		for (final WineList list : currentUser.getWishlists()) {
+		for (final WineList list : user.getWishlists()) {
 			row = new HorizontalLayout();
 			row.setWidth("100%");
 			row.setHeight("36px");
@@ -156,7 +158,7 @@ public class WineInListsDialog extends Dialog {
 		edit.addThemeVariants(ButtonVariant.MATERIAL_CONTAINED);
 		edit.addClickListener(e -> {
 
-			final WineList list = uservice.createList(nameField.getValue());
+			final WineList list = uservice.createList(currentUser.get(), nameField.getValue());
 
 			if (list != null) {
 				service.modifyListAmount(list, wine, 1);

@@ -3,8 +3,8 @@ package org.thomas.winecellar.ui;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
+import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.service.WineService;
 import org.thomas.winecellar.ui.components.WineInListsDialog;
 
@@ -34,7 +34,7 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 	private Wine wine;
 
 	@Autowired
-	private User currentUser;
+	private CurrentUserProvider currentUser;
 
 	@Autowired
 	private WineInListsDialog listsDialog;
@@ -66,7 +66,7 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 		add(new H3(wine.getName()));
 
 		final Button add = new Button();
-		if (currentUser.getCellarList().has(wine)) {
+		if (currentUser.get().getCellarList().has(wine)) {
 			add.setText("In Cellar!");
 			add.setIcon(VaadinIcon.CHECK.create());
 		} else {

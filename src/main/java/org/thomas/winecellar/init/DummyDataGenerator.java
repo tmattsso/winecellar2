@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,7 @@ import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
 import org.thomas.winecellar.data.WineType;
 import org.thomas.winecellar.repo.ProducerRepo;
+import org.thomas.winecellar.repo.UserRepository;
 import org.thomas.winecellar.service.UserService;
 import org.thomas.winecellar.service.WineService;
 
@@ -39,6 +41,9 @@ public class DummyDataGenerator {
 
 	@Autowired
 	UserService users;
+
+	@Autowired
+	UserRepository userRepo;
 
 	@Autowired
 	ProducerRepo producerRepo;
@@ -58,11 +63,13 @@ public class DummyDataGenerator {
 	final int COL_GRAPES = 16;
 	final int COL_NOTES = 17;
 
+	private User demoUser;
+
 	@EventListener
 	public void generate(ContextStartedEvent ctxStartEvt) {
 
-		final User currentUser = users.getCurrentUser();
-		if (currentUser != null) {
+		final Iterator<User> currentUser = userRepo.findAll().iterator();
+		if (currentUser.hasNext()) {
 			return;
 		}
 
@@ -77,26 +84,26 @@ public class DummyDataGenerator {
 		final WineList wish = new WineList();
 		wish.setName("Wish List");
 
-		User u = new User();
-		u.setName("Thomas");
-		u.addWishList(wish);
-		u = users.addUser(u);
+		demoUser = new User();
+		demoUser.setName("Thomas");
+		demoUser.addWishList(wish);
+		demoUser = users.addUser(demoUser);
 
-		createLotsaLists(u, true);
+		createLotsaLists(true);
 
 		LOG.info("Dummy data done.");
 	}
 
-	private void createLotsaLists(User u, boolean b) {
+	private void createLotsaLists(boolean b) {
 		if (!b) {
 			return;
 		}
 
-		for (int i = 0; i < 15; i++) {
+		for (int i = 1; i < 15; i++) {
 			final WineList cellar = new WineList();
 			cellar.setName("Wish list " + i);
 
-			users.addWishList(cellar);
+			demoUser = users.addWishList(demoUser, cellar);
 		}
 	}
 

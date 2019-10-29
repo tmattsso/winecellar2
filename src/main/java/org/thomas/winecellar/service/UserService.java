@@ -1,27 +1,20 @@
 package org.thomas.winecellar.service;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.annotation.SessionScope;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.WineList;
 import org.thomas.winecellar.repo.UserRepository;
-import org.thomas.winecellar.repo.WineListRepo;
 
 @Service
 public class UserService {
 
 	@Autowired
 	private UserRepository repo;
-
-	@Autowired
-	private WineListRepo listRepo;
 
 	public User addUser(User user) {
 
@@ -36,23 +29,13 @@ public class UserService {
 		return user;
 	}
 
-	@Bean
-	@SessionScope
-	public User getCurrentUser() {
-		final Iterator<User> iterator = repo.findAll().iterator();
-		if (!iterator.hasNext()) {
-			return null;
-		}
-		return iterator.next();
+	public void removeList(User user, WineList list) {
+		user.getWishlists().remove(list);
 	}
 
-	public void removeList(WineList list) {
-		getCurrentUser().getWishlists().remove(list);
-	}
+	public WineList createList(User user, String name) {
 
-	public WineList createList(String name) {
-
-		if (listNameInvalid(name)) {
+		if (listNameInvalid(user, name)) {
 			return null;
 		}
 
@@ -60,14 +43,14 @@ public class UserService {
 		list.setName(name);
 		list.setId(new Random().nextLong());
 
-		getCurrentUser().addWishList(list);
+		user.addWishList(list);
 
 		return list;
 	}
 
-	public WineList renameList(WineList list, String name) {
+	public WineList renameList(User user, WineList list, String name) {
 
-		if (listNameInvalid(name)) {
+		if (listNameInvalid(user, name)) {
 			return null;
 		}
 
@@ -75,26 +58,25 @@ public class UserService {
 		return list;
 	}
 
-	private boolean listNameInvalid(String name) {
+	private boolean listNameInvalid(User user, String name) {
 		if (name == null || name.isEmpty()) {
 			return true;
 		}
 
-		final List<String> names = getCurrentUser().getWishlists().stream().map(l -> l.getName())
-				.collect(Collectors.toList());
+		final List<String> names = user.getWishlists().stream().map(l -> l.getName()).collect(Collectors.toList());
 		if (names.contains(name)) {
 			return true;
 		}
 		return false;
 	}
 
-	public void addWishList(WineList cellar) {
+	public User addWishList(User user, WineList cellar) {
 
-		cellar = listRepo.save(cellar);
-
-		final User user = getCurrentUser();
+		user = repo.findById(user.getId()).get();
 		user.addWishList(cellar);
 		repo.save(user);
+
+		return user;
 	}
 
 }

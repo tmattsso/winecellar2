@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
+import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.service.UserService;
 import org.thomas.winecellar.service.WineService;
 
@@ -42,7 +43,7 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 	private UserService uservice;
 
 	@Autowired
-	private User user;
+	private CurrentUserProvider cup;
 
 	private boolean isCellarList;
 	private WineList selectedList;
@@ -58,6 +59,7 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 
 		removeAll();
 
+		final User user = cup.get();
 		if (user == null) {
 			add(new H3("No such list."));
 			return;
@@ -113,7 +115,7 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 				edit.setIcon(VaadinIcon.CHECK.create());
 				edit.addClickListener(ev -> {
 					// do edit
-					final WineList list = uservice.renameList(selectedList, nameField.getValue());
+					final WineList list = uservice.renameList(cup.get(), selectedList, nameField.getValue());
 
 					if (list != null) {
 						setParameter(null, list.getId());

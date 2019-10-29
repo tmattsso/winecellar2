@@ -25,3 +25,4 @@ For more information on Vaadin Flow, visit https://vaadin.com/flow.
 - add vintage reviews
 - add user wine list export
 - investigate theme issues
+- shared wish lists (tasting list)

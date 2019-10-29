@@ -1,10 +1,8 @@
 package org.thomas.winecellar.ui;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.WineList;
+import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.service.UserService;
 import org.thomas.winecellar.ui.components.DoubleButton;
 
@@ -20,27 +18,29 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "wishlists", layout = MainView.class)
 @CssImport("./styles/winelist.css")
 @CssImport(value = "./styles/winelist-buttons.css", themeFor = "vaadin-button")
-public class WishListsView extends VerticalLayout {
+public class WishListsView extends VerticalLayout implements AfterNavigationObserver {
 
 	private static final long serialVersionUID = 2382311022514671116L;
 
 	private VerticalLayout listsWrapper;
 
 	@Autowired
-	private User currentUser;
+	private CurrentUserProvider currentUser;
 
 	@Autowired
 	private UserService service;
 
 	private TextField filter;
 
-	@PostConstruct
-	public void init() {
+	@Override
+	public void afterNavigation(AfterNavigationEvent event) {
 
 		removeAll();
 
@@ -69,7 +69,7 @@ public class WishListsView extends VerticalLayout {
 
 		listsWrapper.removeAll();
 
-		currentUser.getWishlists().forEach((list) -> {
+		currentUser.get().getWishlists().forEach((list) -> {
 
 			if (filterText != null && !list.getName().toLowerCase().contains(filterText)) {
 				// NOOP
@@ -96,7 +96,7 @@ public class WishListsView extends VerticalLayout {
 	}
 
 	private void deleteList(WineList list) {
-		service.removeList(list);
+		service.removeList(currentUser.get(), list);
 		Notification.show("List deleted", 2000, Position.BOTTOM_CENTER);
 		renderList(filter.getValue());
 	}
@@ -125,7 +125,7 @@ public class WishListsView extends VerticalLayout {
 			if (name == null || name.isEmpty()) {
 				error.setText("Invalid name!");
 			} else {
-				final WineList list = service.createList(name);
+				final WineList list = service.createList(currentUser.get(), name);
 				if (list != null) {
 					UI.getCurrent().navigate(WineListView.class, list.getId());
 				} else {

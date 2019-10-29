@@ -1,7 +1,7 @@
 package org.thomas.winecellar.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.thomas.winecellar.data.User;
+import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.ui.components.DrawerComponent;
 
 import com.vaadin.flow.component.HasElement;
@@ -14,6 +14,8 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
@@ -21,7 +23,7 @@ import com.vaadin.flow.theme.material.Material;
 @CssImport(value = "./styles/createnewbutton.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/dialog.css", themeFor = "vaadin-dialog-overlay")
 @Theme(Material.class)
-public class MainView extends AppLayout {
+public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = -2453134437569568704L;
 
@@ -30,7 +32,9 @@ public class MainView extends AppLayout {
 	private final Label title;
 
 	@Autowired
-	public MainView(User u) {
+	private CurrentUserProvider currentUser;
+
+	public MainView() {
 
 		setDrawerOpened(false);
 
@@ -71,6 +75,13 @@ public class MainView extends AppLayout {
 			title.setText(((HasViewTitle) content).getTitle());
 		} else {
 			title.setText(TITLE_DEFAULT);
+		}
+	}
+
+	@Override
+	public void beforeEnter(BeforeEnterEvent event) {
+		if (currentUser.get() == null) {
+			event.rerouteTo(LoginView.class);
 		}
 	}
 
