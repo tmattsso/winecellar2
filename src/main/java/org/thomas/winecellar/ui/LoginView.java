@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.service.CurrentUserProvider;
 
-import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -17,10 +16,12 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.page.PendingJavaScriptResult;
 import com.vaadin.flow.component.textfield.EmailField;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
 
 @Route("login")
-public class LoginView extends VerticalLayout {
+public class LoginView extends VerticalLayout implements AfterNavigationObserver {
 
 	private static final long serialVersionUID = -1724824498184786980L;
 
@@ -70,11 +71,10 @@ public class LoginView extends VerticalLayout {
 	}
 
 	@Override
-	protected void onAttach(AttachEvent attachEvent) {
-		super.onAttach(attachEvent);
+	public void afterNavigation(AfterNavigationEvent event) {
 
 		// Auto-login check
-		final PendingJavaScriptResult result = attachEvent.getUI().getPage().executeJs(LOCAL_STORAGE_GET);
+		final PendingJavaScriptResult result = UI.getCurrent().getPage().executeJs(LOCAL_STORAGE_GET);
 		result.then(json -> {
 			final String jsonString = json.asString();
 			if ("null".equals(jsonString)) {
@@ -87,15 +87,23 @@ public class LoginView extends VerticalLayout {
 
 				if (u != null) {
 					LOG.info("Autologin success for " + u.toString());
-					UI.getCurrent().getPage().reload();
+
+					final String path = event.getLocation().getPath();
+					if (path.contains("login")) {
+						// redirect
+						UI.getCurrent().navigate(WineListView.class);
+					} else {
+						UI.getCurrent().getPage().reload();
+					}
 				} else {
 
 					// there was something in storage, but it wasn't valid; clear it
 					LOG.info("Received invalid logging string " + jsonString + ", removing");
-					attachEvent.getUI().getPage().executeJs(LOCAL_STORAGE_REMOVE);
+					UI.getCurrent().getPage().executeJs(LOCAL_STORAGE_REMOVE);
 				}
 			}
 
 		});
 	}
+
 }
