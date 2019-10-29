@@ -2,6 +2,7 @@ package org.thomas.winecellar.service;
 
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,19 @@ public class UserService {
 	@Autowired
 	private UserRepository repo;
 
-	public User addUser(User user) {
+	public User addUser(String name, String email, User user) {
 
 		if (user.getCellarList() == null) {
 			final WineList cellarList = new WineList();
 			cellarList.setName("Cellar List");
 			user.setCellarList(cellarList);
 		}
+
+		final String uuid = UUID.randomUUID().toString();
+		user.setUuid(uuid);
+
+		user.setName(name);
+		user.setEmail(email);
 
 		user = repo.save(user);
 		System.out.println("Created user " + user);

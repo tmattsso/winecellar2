@@ -81,13 +81,8 @@ public class DummyDataGenerator {
 			e.printStackTrace();
 		}
 
-		final WineList wish = new WineList();
-		wish.setName("Wish List");
-
 		demoUser = new User();
-		demoUser.setName("Thomas");
-		demoUser.addWishList(wish);
-		demoUser = users.addUser(demoUser);
+		demoUser = users.addUser("Thomas", "thomas@gmail.com", demoUser);
 
 		createLotsaLists(true);
 

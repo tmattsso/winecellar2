@@ -22,7 +22,21 @@ public class CurrentUserProvider {
 		return null;
 	}
 
-	public void setCurrentUserID(Long id) {
-		currentUserID = id;
+	public User loginByEmail(String email) {
+		final User user = repo.getByEmail(email);
+		if (user != null) {
+			currentUserID = user.getId();
+		}
+
+		return user;
+	}
+
+	public User loginByUuid(String uuid) {
+		final User user = repo.getByUuid(uuid);
+		if (user != null) {
+			currentUserID = user.getId();
+		}
+
+		return user;
 	}
 }

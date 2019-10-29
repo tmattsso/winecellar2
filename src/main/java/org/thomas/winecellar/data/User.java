@@ -10,6 +10,7 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderColumn;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -24,6 +25,13 @@ public class User extends NamedEntity {
 	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	@OrderColumn(name = "listorder")
 	private List<WineList> wishlists = new ArrayList<>();
+
+	@NotNull
+	private String uuid;
+
+	@NotNull
+	@Email
+	private String email;
 
 	public WineList getCellarList() {
 		return cellarList;
@@ -73,5 +81,26 @@ public class User extends NamedEntity {
 
 	public WineList getWishList(Long listId) {
 		return getWishlists().stream().filter(l -> l.getId() == listId).findAny().orElse(null);
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	@Override
+	public String toString() {
+		return String.format("User #%d (%s, %s, %s)", getId(), getName(), getEmail(), getUuid());
 	}
 }
