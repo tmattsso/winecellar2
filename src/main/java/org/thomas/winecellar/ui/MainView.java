@@ -25,7 +25,7 @@ import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
 @CssImport("./styles/main.css")
-@CssImport(value = "./styles/createnewbutton.css", themeFor = "vaadin-button")
+@CssImport(value = "./styles/buttons.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/dialog.css", themeFor = "vaadin-dialog-overlay")
 @CssImport(value = "./styles/notifications.css", themeFor = "vaadin-notification-card")
 @Theme(Material.class)

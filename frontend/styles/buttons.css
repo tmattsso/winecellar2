@@ -37,3 +37,7 @@
 :host(.pureicon) .vaadin-button-container ::slotted(iron-icon){
 	margin: 0;
 }
+
+:host {
+	cursor: pointer;
+}
