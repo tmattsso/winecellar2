@@ -20,6 +20,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -163,10 +164,12 @@ public class WineInListsDialog extends Dialog {
 			if (list != null) {
 				service.modifyListAmount(list, wine, 1);
 				close();
-				Notification.show("List Created!", 2000, Position.MIDDLE);
+				Notification.show("List created and wine added!", 2000, Position.MIDDLE)
+						.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 			} else {
 				// name error
-				Notification.show("Invalid name", 3000, Position.MIDDLE);
+				Notification.show("Invalid name", 3000, Position.MIDDLE)
+						.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			}
 		});
 		hl.add(edit);
@@ -175,7 +178,8 @@ public class WineInListsDialog extends Dialog {
 	private void addToList(WineList list, Double value) {
 		service.modifyListAmount(list, wine, value.intValue());
 		close();
-		Notification.show("Wine added to list", 2000, Position.MIDDLE);
+		Notification.show("Wine added to list", 2000, Position.MIDDLE)
+				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		callback.run();
 	}
 }

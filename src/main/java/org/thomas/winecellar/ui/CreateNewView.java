@@ -19,6 +19,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
@@ -117,7 +118,7 @@ public class CreateNewView extends VerticalLayout {
 
 	private void showSuccess() {
 		// TODO Auto-generated method stub
-		Notification.show("Wine added", 2, Position.BOTTOM_CENTER);
+		Notification.show("Wine added", 2, Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		UI.getCurrent().navigate(WineListView.class);
 	}
 

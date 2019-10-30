@@ -12,6 +12,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
@@ -19,9 +20,11 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
 import com.vaadin.flow.router.OptionalParameter;
@@ -50,6 +53,8 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 	private WineList selectedList;
 
 	private Registration editClickListener;
+
+	private Div listWrapper;
 
 	public WineListView() {
 
@@ -80,15 +85,15 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 
 		if (user.getCellarList() != null && user.getCellarList().getId() == parameter) {
 			isCellarList = true;
-			renderList(user.getCellarList(), null);
+			renderView(user.getCellarList());
 		} else if (user.getWishList(parameter) != null) {
-			renderList(user.getWishList(parameter), null);
+			renderView(user.getWishList(parameter));
 		} else {
 			add(new H3("No such list."));
 		}
 	}
 
-	private void renderList(WineList cellarList, String filterText) {
+	private void renderView(WineList cellarList) {
 		selectedList = cellarList;
 
 		if (!isCellarList) {
@@ -120,10 +125,12 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 
 					if (list != null) {
 						setParameter(null, list.getId());
-						Notification.show("Name saved", 1000, Position.MIDDLE);
+						Notification.show("Name saved", 1000, Position.MIDDLE)
+								.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 					} else {
 						// name error
-						Notification.show("Invalid name", 3000, Position.MIDDLE);
+						Notification.show("Invalid name", 3000, Position.MIDDLE)
+								.addThemeVariants(NotificationVariant.LUMO_ERROR);
 						nameField.focus();
 					}
 				});
@@ -142,38 +149,54 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 
 			final TextField filter = new TextField("Filter wines");
 			filter.setClearButtonVisible(true);
-			filter.addInputListener(e -> {
+			filter.addValueChangeListener(e -> {
 				if (e.isFromClient()) {
-					removeAll();
 					renderList(cellarList, filter.getValue());
 				}
 			});
-			filter.setValue(filterText == null ? "" : filterText);
+			filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
 			add(filter);
 
-			cellarList.getWines().forEach((wine, amount) -> {
+			listWrapper = new Div();
+			listWrapper.setWidth("100%");
+			add(listWrapper);
 
-				final HorizontalLayout hl = new HorizontalLayout();
-				hl.setWidth("100%");
-				hl.addClassName("winelist-item");
-				add(hl);
-
-				if (filterText != null) {
-					if (wine.getName().toLowerCase().contains(filterText.toLowerCase())
-							|| wine.getProducer().getName().toLowerCase().contains(filterText.toLowerCase())) {
-						renderWineEntry(hl, wine, amount);
-					}
-				} else {
-					renderWineEntry(hl, wine, amount);
-				}
-			});
+			renderList(cellarList, null);
 		}
 
 	}
 
+	private void renderList(WineList cellarList, String filterText) {
+
+		System.out.println(filterText);
+
+		listWrapper.removeAll();
+
+		cellarList.getWines().forEach((wine, amount) -> {
+
+			final HorizontalLayout hl = new HorizontalLayout();
+			hl.setWidth("100%");
+			hl.addClassName("winelist-item");
+
+			if (filterText != null) {
+				final boolean name = wine.getName().toLowerCase().contains(filterText.toLowerCase());
+				final boolean producer = wine.getProducer().getName().toLowerCase().contains(filterText.toLowerCase());
+				final boolean country = wine.getCountry().toLowerCase().contains(filterText.toLowerCase());
+				final boolean region = wine.getRegion().toLowerCase().contains(filterText.toLowerCase());
+				final boolean subregion = wine.getSubregion().toLowerCase().contains(filterText.toLowerCase());
+				final boolean grapes = wine.hasGrape(filterText);
+				if (name || producer || country || region || subregion || grapes) {
+					renderWineEntry(hl, wine, amount);
+				}
+			} else {
+				renderWineEntry(hl, wine, amount);
+			}
+		});
+	}
+
 	private void renderWineEntry(HorizontalLayout hl, Wine wine, Integer amount) {
 
-		hl.removeAll();
+		listWrapper.add(hl);
 
 		final Button name = new Button(wine.getName(),
 				e -> UI.getCurrent().navigate(WineDetailsView.class, wine.getId()));

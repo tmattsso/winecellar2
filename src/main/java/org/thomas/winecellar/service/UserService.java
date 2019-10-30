@@ -1,7 +1,6 @@
 package org.thomas.winecellar.service;
 
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -38,6 +37,10 @@ public class UserService {
 		return user;
 	}
 
+	public void update(User user) {
+		repo.save(user);
+	}
+
 	public void removeList(User user, WineList list) {
 		user.getWishlists().remove(list);
 	}
@@ -48,11 +51,15 @@ public class UserService {
 			return null;
 		}
 
-		final WineList list = new WineList();
+		WineList list = new WineList();
 		list.setName(name);
-		list.setId(new Random().nextLong());
 
+		user = repo.findById(user.getId()).get();
 		user.addWishList(list);
+		user = repo.save(user);
+
+		final List<WineList> wishlists = user.getWishlists();
+		list = wishlists.get(wishlists.size() - 1);
 
 		return list;
 	}
@@ -63,7 +70,12 @@ public class UserService {
 			return null;
 		}
 
+		user = repo.findById(user.getId()).get();
+		list = user.getWishList(list.getId());
 		list.setName(name);
+		user.addWishList(list);
+		repo.save(user);
+
 		return list;
 	}
 

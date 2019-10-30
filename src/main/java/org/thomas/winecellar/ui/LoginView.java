@@ -74,7 +74,6 @@ public class LoginView extends VerticalLayout implements AfterNavigationObserver
 	}
 
 	private void noUserMaybeCreate(String email) {
-		Notification.show("No user");
 
 		final VerticalLayout vl = new VerticalLayout();
 		final Dialog d = new Dialog(vl);

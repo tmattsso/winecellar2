@@ -39,4 +39,5 @@ public class CurrentUserProvider {
 
 		return user;
 	}
+
 }

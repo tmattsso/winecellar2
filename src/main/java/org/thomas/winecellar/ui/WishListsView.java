@@ -15,9 +15,11 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.Notification.Position;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.Route;
@@ -48,11 +50,12 @@ public class WishListsView extends VerticalLayout implements AfterNavigationObse
 
 		filter = new TextField("Filter lists");
 		filter.setClearButtonVisible(true);
-		filter.addInputListener(e -> {
+		filter.addValueChangeListener(e -> {
 			if (e.isFromClient()) {
 				renderList(filter.getValue());
 			}
 		});
+		filter.setValueChangeMode(ValueChangeMode.TIMEOUT);
 		add(filter);
 
 		listsWrapper.setPadding(false);
@@ -97,7 +100,7 @@ public class WishListsView extends VerticalLayout implements AfterNavigationObse
 
 	private void deleteList(WineList list) {
 		service.removeList(currentUser.get(), list);
-		Notification.show("List deleted", 2000, Position.BOTTOM_CENTER);
+		Notification.show("List deleted", 2000, Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		renderList(filter.getValue());
 	}
 

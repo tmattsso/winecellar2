@@ -1,0 +1,11 @@
+
+
+:host([theme~="error"]) [part="overlay"] {
+	background: var(--material-error-color);
+	color: var(--material-error-contrast-color);
+}
+
+:host([theme~="success"]) [part="overlay"] {
+	background: var(--material-success-color);
+	color: var(--material-success-contrast-color);
+}

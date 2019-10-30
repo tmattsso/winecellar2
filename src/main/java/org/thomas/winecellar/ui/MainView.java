@@ -27,6 +27,7 @@ import com.vaadin.flow.theme.material.Material;
 @CssImport("./styles/main.css")
 @CssImport(value = "./styles/createnewbutton.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/dialog.css", themeFor = "vaadin-dialog-overlay")
+@CssImport(value = "./styles/notifications.css", themeFor = "vaadin-notification-card")
 @Theme(Material.class)
 @UIScope
 public class MainView extends AppLayout implements BeforeEnterObserver {
@@ -72,6 +73,9 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
 		addToDrawer(new DrawerComponent("Add wine", VaadinIcon.PLUS_CIRCLE_O.create(),
 				() -> UI.getCurrent().navigate(CreateNewView.class)));
+
+		addToDrawer(new DrawerComponent("User info", VaadinIcon.USER.create(),
+				() -> UI.getCurrent().navigate(UserInfoView.class)));
 
 		addToDrawer(new DrawerComponent("About", VaadinIcon.INFO_CIRCLE_O.create(),
 				() -> UI.getCurrent().navigate(AboutView.class)));

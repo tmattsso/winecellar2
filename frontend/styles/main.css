@@ -5,6 +5,9 @@ html {
 	--material-primary-text-color: DarkRed;
 	
 	--material-body-text-color: DarkRed;
+	
+	--material-success-color: #005000;
+	--material-success-contrast-color: white;
 }
 
 body {

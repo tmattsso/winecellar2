@@ -111,4 +111,13 @@ public class Wine extends NamedEntity {
 	public void setGrapes(List<String> grapes) {
 		this.grapes = grapes;
 	}
+
+	public boolean hasGrape(String searchTerm) {
+		for (final String g : grapes) {
+			if (g.toLowerCase().equals(searchTerm.toLowerCase())) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
