@@ -13,6 +13,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -130,33 +131,43 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 			hl.add(edit);
 		}
 
-		final TextField filter = new TextField("Filter wines");
-		filter.setClearButtonVisible(true);
-		filter.addInputListener(e -> {
-			if (e.isFromClient()) {
-				removeAll();
-				renderList(cellarList, filter.getValue());
-			}
-		});
-		filter.setValue(filterText == null ? "" : filterText);
-		add(filter);
+		if (cellarList.getWines().isEmpty()) {
 
-		cellarList.getWines().forEach((wine, amount) -> {
+			final H4 label = new H4("No wines in list.");
+			final Button button = new Button("Search for wines...", e -> UI.getCurrent().navigate(SearchView.class));
+			button.addThemeVariants(ButtonVariant.MATERIAL_CONTAINED);
+			add(label, button);
 
-			final HorizontalLayout hl = new HorizontalLayout();
-			hl.setWidth("100%");
-			hl.addClassName("winelist-item");
-			add(hl);
+		} else {
 
-			if (filterText != null) {
-				if (wine.getName().toLowerCase().contains(filterText.toLowerCase())
-						|| wine.getProducer().getName().toLowerCase().contains(filterText.toLowerCase())) {
+			final TextField filter = new TextField("Filter wines");
+			filter.setClearButtonVisible(true);
+			filter.addInputListener(e -> {
+				if (e.isFromClient()) {
+					removeAll();
+					renderList(cellarList, filter.getValue());
+				}
+			});
+			filter.setValue(filterText == null ? "" : filterText);
+			add(filter);
+
+			cellarList.getWines().forEach((wine, amount) -> {
+
+				final HorizontalLayout hl = new HorizontalLayout();
+				hl.setWidth("100%");
+				hl.addClassName("winelist-item");
+				add(hl);
+
+				if (filterText != null) {
+					if (wine.getName().toLowerCase().contains(filterText.toLowerCase())
+							|| wine.getProducer().getName().toLowerCase().contains(filterText.toLowerCase())) {
+						renderWineEntry(hl, wine, amount);
+					}
+				} else {
 					renderWineEntry(hl, wine, amount);
 				}
-			} else {
-				renderWineEntry(hl, wine, amount);
-			}
-		});
+			});
+		}
 
 	}
 

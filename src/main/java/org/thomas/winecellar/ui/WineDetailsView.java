@@ -47,6 +47,12 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 	@Override
 	public void setParameter(BeforeEvent event, Long parameter) {
 
+		if (currentUser.get() == null) {
+			// Workaround for https://github.com/vaadin/flow/issues/4595
+			// MainView will redirect to login, nothing to do here.
+			return;
+		}
+
 		removeAll();
 
 		if (parameter == null) {

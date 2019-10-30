@@ -14,6 +14,8 @@ import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -35,6 +37,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	private static final String TITLE_DEFAULT = "WineCellar v2.0";
 
+	private final H4 welcomeLabel = new H4();
 	private final Label title;
 
 	@Autowired
@@ -53,6 +56,10 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		search.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
 
 		addToNavbar(true, new DrawerToggle(), title, search);
+
+		final Div welcome = new Div(welcomeLabel);
+		welcome.addClassName("welcome");
+		addToDrawer(welcome);
 
 		addToDrawer(new DrawerComponent("My Cellar", VaadinIcon.OPEN_BOOK.create(),
 				() -> UI.getCurrent().navigate(WineListView.class)));
@@ -92,6 +99,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	public void beforeEnter(BeforeEnterEvent event) {
 		if (currentUser.get() == null) {
 			event.rerouteTo(LoginView.class);
+		} else {
+			welcomeLabel.setText("Hi, " + currentUser.get().getName() + "!");
 		}
 	}
 

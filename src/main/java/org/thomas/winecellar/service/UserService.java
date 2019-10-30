@@ -17,7 +17,9 @@ public class UserService {
 	@Autowired
 	private UserRepository repo;
 
-	public User addUser(String name, String email, User user) {
+	public User addUser(String name, String email) {
+
+		User user = new User();
 
 		if (user.getCellarList() == null) {
 			final WineList cellarList = new WineList();

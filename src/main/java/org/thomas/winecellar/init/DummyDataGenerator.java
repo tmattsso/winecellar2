@@ -81,8 +81,7 @@ public class DummyDataGenerator {
 			e.printStackTrace();
 		}
 
-		demoUser = new User();
-		demoUser = users.addUser("Thomas", "thomas@gmail.com", demoUser);
+		demoUser = users.addUser("Thomas", "thomas@gmail.com");
 
 		createLotsaLists(true);
 

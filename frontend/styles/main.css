@@ -22,3 +22,13 @@ body {
 	max-width: 26px;
 	min-width: 26px;
 }
+
+.welcome {
+	padding: 10px;
+    padding-top: 1px;
+    padding-left: 15px;
+    font-weight: bold;
+    background-color: var(--material-primary-color);
+    margin-right: -1px;
+    color: white;
+}
