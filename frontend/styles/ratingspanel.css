@@ -1,0 +1,30 @@
+
+
+.ratingspanel {
+	border: 1px solid var(--material-body-text-color);
+    padding: 5px;
+    box-sizing: border-box;
+}
+
+.ratingspanel .stars {
+	display: flex;
+    align-items: center;
+}
+
+.ratingspanel .author {
+	padding-right: 10px; 
+	margin-left: auto;
+}
+
+.ratingspanel .timestamp {
+	font-size: var(--material-small-font-size);
+}
+
+.ratingspanel .vintage {
+	margin-left: auto;
+}
+
+.ratingspanel .comment {
+	
+    padding-top: 10px;
+}

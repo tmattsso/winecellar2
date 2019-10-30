@@ -8,6 +8,7 @@ import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.service.WineService;
 import org.thomas.winecellar.ui.components.WineInListsDialog;
 
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.CssImport;
@@ -15,6 +16,7 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEvent;
 import com.vaadin.flow.router.HasUrlParameter;
@@ -84,6 +86,10 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 		add.addClassName("in-list-button");
 		add(add);
 
+		final HorizontalLayout ratings = WineRatingView.createSummary(wine);
+		ratings.addClickListener(e -> openRatings());
+		add(ratings);
+
 		addSection("Producer:", wine.getProducer().getName());
 		addSection("Type:", wine.getType().toString());
 		addSection("Grapes:", wine.getGrapes().stream().collect(Collectors.joining(", ")));
@@ -91,11 +97,26 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 		addSection("Region:", wine.getRegion());
 		addSection("Subregion:", wine.getSubregion());
 
+		if (wine.getAlko_id() != null) {
+			final Button gotoAlko = new Button();
+			gotoAlko.setText("View on Alko.fi");
+			gotoAlko.setIcon(VaadinIcon.EXTERNAL_LINK.create());
+			gotoAlko.addClickListener(e -> {
+				UI.getCurrent().getPage().open("https://www.alko.fi/en/tuotteet/" + wine.getAlko_id());
+			});
+			gotoAlko.addThemeVariants(ButtonVariant.MATERIAL_CONTAINED);
+			add(gotoAlko);
+		}
+
 		// final Image img = new Image(
 		// "https://images.alko.fi/images/cs_srgb,f_auto,t_medium/cdn/480617/querciabella-chianti-classico-2016.jpg",
 		// "le wine");
 		// img.setHeight("200px");
 		// add(img);
+	}
+
+	private void openRatings() {
+		UI.getCurrent().navigate(WineRatingView.class, wine.getId());
 	}
 
 	private void addSection(String titleText, String contentText) {

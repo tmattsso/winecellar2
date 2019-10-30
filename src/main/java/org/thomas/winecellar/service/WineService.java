@@ -2,9 +2,13 @@ package org.thomas.winecellar.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +16,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.ApplicationScope;
 import org.thomas.winecellar.data.NamedEntity;
 import org.thomas.winecellar.data.Producer;
+import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
+import org.thomas.winecellar.data.WineRating;
 import org.thomas.winecellar.repo.ProducerRepo;
 import org.thomas.winecellar.repo.WineListRepo;
+import org.thomas.winecellar.repo.WineRatingRepo;
 import org.thomas.winecellar.repo.WineRepository;
 
 @Service
@@ -30,6 +37,9 @@ public class WineService {
 
 	@Autowired
 	private ProducerRepo producers;
+
+	@Autowired
+	private WineRatingRepo ratings;
 
 	private List<Wine> CACHE;
 
@@ -193,4 +203,39 @@ public class WineService {
 				.collect(Collectors.toList());
 	}
 
+	@Transactional
+	public void addRating(User user, Wine wine, int rating, Integer vintage, String comment) {
+
+		wine = repo.findById(wine.getId()).get();
+
+		final WineRating wr = new WineRating();
+		wr.setWine(wine);
+		wr.setRating(rating);
+		wr.setVintage(vintage);
+		wr.setComment(comment);
+
+		wr.setUsername(user.getName());
+		wr.setReviewTime(new Date());
+
+		final List<WineRating> oldRatings = getRatings(wine);
+		final int sum = oldRatings.stream().mapToInt(r -> r.getRating()).sum();
+		final double newTotal = (sum + rating) / (oldRatings.size() + 1d);
+		wine.setRating(newTotal);
+		wine.setNumRatings(oldRatings.size() + 1);
+
+		repo.save(wine);
+		ratings.save(wr);
+	}
+
+	@Transactional
+	public List<WineRating> getRatings(Wine wine) {
+
+		final List<WineRating> findByWine = ratings.findByWine(wine);
+		Collections.sort(findByWine);
+		return findByWine;
+	}
+
+	public List<WineRating> getRatings(Long parameter) {
+		return getRatings(repo.findById(parameter).get());
+	}
 }

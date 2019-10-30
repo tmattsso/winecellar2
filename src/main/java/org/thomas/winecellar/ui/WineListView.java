@@ -147,7 +147,7 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 
 		} else {
 
-			final TextField filter = new TextField("Filter wines");
+			final TextField filter = new TextField("Filter wines...");
 			filter.setClearButtonVisible(true);
 			filter.addValueChangeListener(e -> {
 				if (e.isFromClient()) {
@@ -167,8 +167,6 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 	}
 
 	private void renderList(WineList cellarList, String filterText) {
-
-		System.out.println(filterText);
 
 		listWrapper.removeAll();
 

@@ -75,15 +75,39 @@ public class DummyDataGenerator {
 
 		LOG.info("Creating dummy data...");
 
+		Wine special = null;
 		try {
-			initAlkoData();
+			special = initAlkoData();
 		} catch (final IOException e) {
 			e.printStackTrace();
 		}
 
 		demoUser = users.addUser("Thomas", "thomas@gmail.com");
 
+		final User u2 = users.addUser("User 2", "user2@gmail.com");
+
 		createLotsaLists(true);
+
+		if (special != null) {
+
+			service.addRating(demoUser, special, 5, 2010, "It's fine");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+			service.addRating(u2, special, 2, 2008,
+					"It's crap. How crap? Very crap. Indeed, a crappier wine I've yet to taste. It's crappiness could be described by the vastness of Sahara, or the population count on the Earth. But yeah, I'd buy again.");
+
+			service.modifyListAmount(demoUser.getCellarList(), special, 3);
+		}
 
 		LOG.info("Dummy data done.");
 	}
@@ -101,7 +125,7 @@ public class DummyDataGenerator {
 		}
 	}
 
-	private void initAlkoData() throws IOException {
+	private Wine initAlkoData() throws IOException {
 
 		File file = new File("/Users/thomas/Work/Personal/WineCellar2/alkon-hinnasto-tekstitiedostona.xlsx");
 		if (!file.exists()) {
@@ -124,6 +148,7 @@ public class DummyDataGenerator {
 		types.put("kuohuviinit & samppanjat", WineType.BUBBLY);
 
 		int numAdded = 0;
+		Wine special = null;
 		for (int i = 0; i < sheet.getPhysicalNumberOfRows(); i++) {
 
 			final Row row = sheet.getRow(i);
@@ -169,6 +194,7 @@ public class DummyDataGenerator {
 				}
 
 				service.addWine(wine);
+				special = wine;
 
 				numAdded++;
 			}
@@ -177,6 +203,8 @@ public class DummyDataGenerator {
 
 		w.close();
 		LOG.info(String.format("imported %d wines from alko list", numAdded));
+
+		return special;
 	}
 
 	private static String getCell(Row row, int col) {

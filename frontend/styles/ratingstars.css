@@ -1,0 +1,18 @@
+
+
+:host(.ratingstars) .container{
+	width: 100%;
+}
+:host(.ratingstars) [part="label"] {
+	color: var(--material-primary-color);
+}
+:host(.ratingstars) [part="error-message"]:not(:empty) {
+	margin-top: 2px;
+}
+
+:host(.ratingstars) ::slotted(.wrapper) {
+	display: flex;
+	justify-content: center;
+    margin-top: 20px;
+	cursor: pointer;
+}

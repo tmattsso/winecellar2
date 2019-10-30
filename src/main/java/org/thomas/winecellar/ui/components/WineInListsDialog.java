@@ -177,7 +177,6 @@ public class WineInListsDialog extends Dialog {
 
 	private void addToList(WineList list, Double value) {
 		service.modifyListAmount(list, wine, value.intValue());
-		close();
 		Notification.show("Wine added to list", 2000, Position.MIDDLE)
 				.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
 		callback.run();
