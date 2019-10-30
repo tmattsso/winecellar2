@@ -1,5 +1,7 @@
 package org.thomas.winecellar.ui;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.ui.components.DrawerComponent;
@@ -16,6 +18,7 @@ import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
 
@@ -23,9 +26,12 @@ import com.vaadin.flow.theme.material.Material;
 @CssImport(value = "./styles/createnewbutton.css", themeFor = "vaadin-button")
 @CssImport(value = "./styles/dialog.css", themeFor = "vaadin-dialog-overlay")
 @Theme(Material.class)
+@UIScope
 public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	private static final long serialVersionUID = -2453134437569568704L;
+
+	private final Logger LOG = LoggerFactory.getLogger(MainView.class);
 
 	private static final String TITLE_DEFAULT = "WineCellar v2.0";
 
@@ -35,6 +41,8 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 	private CurrentUserProvider currentUser;
 
 	public MainView() {
+
+		UI.getCurrent().getPage().setTitle(TITLE_DEFAULT);
 
 		setDrawerOpened(false);
 
@@ -49,17 +57,19 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		addToDrawer(new DrawerComponent("My Cellar", VaadinIcon.OPEN_BOOK.create(),
 				() -> UI.getCurrent().navigate(WineListView.class)));
 
-		addToDrawer(new DrawerComponent("My Wishlists", VaadinIcon.STAR.create(),
+		addToDrawer(new DrawerComponent("My Wishlists", VaadinIcon.STAR_O.create(),
 				() -> UI.getCurrent().navigate(WishListsView.class)));
 
 		addToDrawer(new DrawerComponent("Search for wine", VaadinIcon.SEARCH.create(),
 				() -> UI.getCurrent().navigate(SearchView.class)));
 
-		addToDrawer(new DrawerComponent("Add wine", VaadinIcon.PLUS.create(),
+		addToDrawer(new DrawerComponent("Add wine", VaadinIcon.PLUS_CIRCLE_O.create(),
 				() -> UI.getCurrent().navigate(CreateNewView.class)));
 
-		addToDrawer(new DrawerComponent("About", VaadinIcon.INFO_CIRCLE.create(),
+		addToDrawer(new DrawerComponent("About", VaadinIcon.INFO_CIRCLE_O.create(),
 				() -> UI.getCurrent().navigate(AboutView.class)));
+
+		addToDrawer(new DrawerComponent("Logout", VaadinIcon.SIGN_OUT.create(), this::logout));
 
 	}
 
@@ -83,6 +93,12 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		if (currentUser.get() == null) {
 			event.rerouteTo(LoginView.class);
 		}
+	}
+
+	public void logout() {
+		LOG.info("Logging out user " + currentUser.get());
+		UI.getCurrent().getPage().executeJs(LoginView.LOCAL_STORAGE_REMOVE);
+		UI.getCurrent().navigate(LoginView.class);
 	}
 
 	// @Override

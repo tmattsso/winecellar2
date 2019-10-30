@@ -103,12 +103,18 @@ public class DummyDataGenerator {
 	}
 
 	private void initAlkoData() throws IOException {
-		final String URL = "https://www.alko.fi/INTERSHOP/static/WFS/Alko-OnlineShop-Site/-/Alko-OnlineShop/fi_FI/Alkon%20Hinnasto%20Tekstitiedostona/alkon-hinnasto-tekstitiedostona.xlsx";
 
-		final File tempFile = File.createTempFile("alkofile", "xlsx");
-		FileUtils.copyURLToFile(new URL(URL), tempFile, 1000, 1000);
+		File file = new File("/Users/thomas/Work/Personal/WineCellar2/alkon-hinnasto-tekstitiedostona.xlsx");
+		if (!file.exists()) {
 
-		final Workbook w = WorkbookFactory.create(tempFile);
+			LOG.info("No local file cache found, fetching...");
+			final String URL = "https://www.alko.fi/INTERSHOP/static/WFS/Alko-OnlineShop-Site/-/Alko-OnlineShop/fi_FI/Alkon%20Hinnasto%20Tekstitiedostona/alkon-hinnasto-tekstitiedostona.xlsx";
+
+			file = File.createTempFile("alkofile", "xlsx");
+			FileUtils.copyURLToFile(new URL(URL), file, 1000, 1000);
+		}
+
+		final Workbook w = WorkbookFactory.create(file);
 
 		final Sheet sheet = w.getSheetAt(0);
 

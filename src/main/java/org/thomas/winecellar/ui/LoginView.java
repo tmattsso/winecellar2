@@ -28,7 +28,7 @@ public class LoginView extends VerticalLayout implements AfterNavigationObserver
 	private static final String LOCAL_STORAGE_ID = "WINECELLAR_UUID";
 	private static final String LOCAL_STORAGE_GET = "return localStorage.getItem('" + LOCAL_STORAGE_ID + "');";
 	private static final String LOCAL_STORAGE_INSERT = "localStorage.setItem('" + LOCAL_STORAGE_ID + "',$0);";
-	private static final String LOCAL_STORAGE_REMOVE = "localStorage.removeItem('" + LOCAL_STORAGE_ID + "');";
+	public static final String LOCAL_STORAGE_REMOVE = "localStorage.removeItem('" + LOCAL_STORAGE_ID + "');";
 
 	private final Logger LOG = LoggerFactory.getLogger(LoginView.class);
 
