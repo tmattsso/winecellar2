@@ -1,7 +1,12 @@
 package org.thomas.winecellar.ui;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -13,6 +18,7 @@ import org.thomas.winecellar.service.WineService;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Label;
@@ -22,14 +28,17 @@ import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
+import com.vaadin.flow.data.provider.ListDataProvider;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "create", layout = MainView.class)
 public class CreateNewView extends VerticalLayout {
 
 	private static final long serialVersionUID = -3913509714364345226L;
+
+	private static final String EMPTY_SELECTION = "(none)";
 
 	private ComboBox<Producer> producerField;
 
@@ -62,35 +71,34 @@ public class CreateNewView extends VerticalLayout {
 		final ComboBox<String> countryField = new ComboBox<>("Country");
 		countryField.setWidthFull();
 		add(countryField);
-		countryField.setItems(service.getCountries());
 		countryField.setAllowCustomValue(true);
-		countryField.addCustomValueSetListener(e -> addString(countryField, e.getDetail(), service.getCountries()));
+		countryField.addCustomValueSetListener(e -> addString(countryField, e.getDetail()));
 
 		final ComboBox<String> regionField = new ComboBox<>("Region");
 		regionField.setWidthFull();
 		add(regionField);
-		regionField.setItems(service.getRegions());
 		regionField.setAllowCustomValue(true);
-		regionField.addCustomValueSetListener(e -> addString(regionField, e.getDetail(), service.getCountries()));
+		regionField.addCustomValueSetListener(e -> addString(regionField, e.getDetail()));
 
 		final ComboBox<String> subregionField = new ComboBox<>("Subregion");
 		subregionField.setWidthFull();
 		add(subregionField);
-		subregionField.setItems(service.getSubregions());
 		subregionField.setAllowCustomValue(true);
-		subregionField.addCustomValueSetListener(e -> addString(subregionField, e.getDetail(), service.getCountries()));
+		subregionField.addCustomValueSetListener(e -> addString(subregionField, e.getDetail()));
 
-		final TextField grapesField = new TextField("Grapes");
+		setupCountrySelectors(countryField, regionField, subregionField);
+
+		final TextField grapesField = new TextField("Grapes (comma separated)");
 		grapesField.setWidthFull();
 		add(grapesField);
 
-		final Binder<Wine> binder = new Binder<>(Wine.class);
-		binder.bind(typeSelect, Wine::getType, Wine::setType);
-		binder.bind(nameField, Wine::getName, Wine::setName);
-		binder.bind(producerField, Wine::getProducer, Wine::setProducer);
-		binder.bind(countryField, Wine::getCountry, Wine::setCountry);
-		binder.bind(regionField, Wine::getRegion, Wine::setRegion);
-		binder.bind(subregionField, Wine::getSubregion, Wine::setSubregion);
+		final BeanValidationBinder<Wine> binder = new BeanValidationBinder<>(Wine.class);
+		binder.forField(typeSelect).asRequired().bind("type");
+		binder.forField(nameField).asRequired().bind("name");
+		binder.forField(producerField).asRequired().bind("producer");
+		binder.forField(countryField).asRequired().bind("country");
+		binder.bind(regionField, "region");
+		binder.bind(subregionField, "subregion");
 		binder.bind(grapesField, w -> w.getGrapes().toString(), (w, value) -> {
 			final String[] split = value.split(",");
 			final List<String> list = new ArrayList<>();
@@ -107,19 +115,62 @@ public class CreateNewView extends VerticalLayout {
 				final Wine wine = new Wine();
 				binder.writeBean(wine);
 				service.addWine(wine);
-				showSuccess();
+
+				Notification.show("Wine added", 1500, Position.MIDDLE)
+						.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+				UI.getCurrent().navigate(WineListView.class);
+
 			} catch (final ValidationException e1) {
-				// TODO Auto-generated catch block
+
 				e1.printStackTrace();
+				Notification.show("Couldn't store wine", 2000, Position.MIDDLE)
+						.addThemeVariants(NotificationVariant.LUMO_ERROR);
 			}
 		});
+		save.addThemeVariants(ButtonVariant.MATERIAL_CONTAINED);
 		add(save);
 	}
 
-	private void showSuccess() {
-		// TODO Auto-generated method stub
-		Notification.show("Wine added", 2, Position.MIDDLE).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		UI.getCurrent().navigate(WineListView.class);
+	private void setupCountrySelectors(ComboBox<String> countryField, ComboBox<String> regionField,
+			ComboBox<String> subregionField) {
+
+		final Map<String, Map<String, Set<String>>> countrymap = service.getCountries();
+
+		final List<String> countries = countrymap.keySet().stream().distinct().sorted().collect(Collectors.toList());
+		countryField.setItems(countries);
+
+		countryField.addValueChangeListener(e -> {
+			final String country = e.getValue();
+
+			if (country == null) {
+				regionField.setItems(new HashSet<>());
+				return;
+			}
+
+			final Map<String, Set<String>> map = countrymap.get(country);
+			final List<String> regions = map.keySet().stream().distinct().sorted().collect(Collectors.toList());
+
+			// Some wines have empty regions, but subregions (typically appellations)
+			regions.replaceAll(s -> s.isEmpty() ? EMPTY_SELECTION : s);
+
+			regionField.setItems(regions);
+		});
+
+		regionField.addValueChangeListener(e -> {
+			final String region = e.getValue();
+			final String country = countryField.getValue();
+
+			if (region == null || country == null) {
+				regionField.setItems(new HashSet<>());
+				return;
+			}
+
+			final Map<String, Set<String>> map = countrymap.get(country);
+			final Set<String> set = map.get(EMPTY_SELECTION.equals(region) ? "" : region);
+			final List<String> regions = set.stream().distinct().sorted().collect(Collectors.toList());
+
+			subregionField.setItems(regions);
+		});
 	}
 
 	private void addProducer(String detail) {
@@ -130,7 +181,14 @@ public class CreateNewView extends VerticalLayout {
 		producerField.setValue(prod);
 	}
 
-	private void addString(ComboBox<String> cb, String detail, List<String> items) {
+	private void addString(ComboBox<String> cb, String detail) {
+
+		if (detail == null || detail.isEmpty()) {
+			return;
+		}
+
+		@SuppressWarnings("unchecked")
+		final Collection<String> items = ((ListDataProvider<String>) cb.getDataProvider()).getItems();
 		items.add(detail);
 		cb.setItems(items);
 		cb.setValue(detail);

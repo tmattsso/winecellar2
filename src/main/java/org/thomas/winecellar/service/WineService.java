@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
@@ -188,19 +191,35 @@ public class WineService {
 		listRepo.save(selectedList);
 	}
 
-	public List<String> getCountries() {
-		return getWines().stream().map(w -> w.getCountry()).filter(s -> s != null).distinct().sorted()
-				.collect(Collectors.toList());
-	}
+	/**
+	 * @return Map Country -> Regions -> Subregions
+	 */
+	public Map<String, Map<String, Set<String>>> getCountries() {
+		final Map<String, Map<String, Set<String>>> countryToRegion = new HashMap<>();
 
-	public List<String> getRegions() {
-		return getWines().stream().map(w -> w.getRegion()).filter(s -> s != null).distinct().sorted()
-				.collect(Collectors.toList());
-	}
+		for (final Wine w : getWines()) {
 
-	public List<String> getSubregions() {
-		return getWines().stream().map(w -> w.getSubregion()).filter(s -> s != null).distinct().sorted()
-				.collect(Collectors.toList());
+			if (w.getCountry() != null) {
+
+				if (!countryToRegion.containsKey(w.getCountry())) {
+					countryToRegion.put(w.getCountry(), new HashMap<>());
+				}
+				final Map<String, Set<String>> regionToSubRegion = countryToRegion.get(w.getCountry());
+
+				if (w.getRegion() != null) {
+					if (!regionToSubRegion.containsKey(w.getRegion())) {
+						regionToSubRegion.put(w.getRegion(), new HashSet<>());
+					}
+
+					if (w.getSubregion() != null) {
+						regionToSubRegion.get(w.getRegion()).add(w.getSubregion());
+					}
+				}
+
+			}
+		}
+
+		return countryToRegion;
 	}
 
 	@Transactional

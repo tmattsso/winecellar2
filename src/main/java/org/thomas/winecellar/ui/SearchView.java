@@ -58,6 +58,8 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		add(controls);
 
 		filters.setOpened(false);
+		// TODO https://github.com/vaadin/vaadin-accordion-flow/issues/43
+		filters.getElement().executeJs("setTimeout(() => {$0.opened = false;},200);", filters.getElement());
 
 		filterType = new ComboBox<>("By Type", WineType.values());
 		filterType.setWidth("100%");
