@@ -5,3 +5,12 @@
     display: flex;
     flex-direction: column;
 }
+
+:host(.grapesSelector) [part="group-field"] ::slotted(vaadin-checkbox:nth-child(8)) {
+	
+    padding-bottom: 15px;
+}
+
+:host(.grapesSelector)::before {
+	display:none;
+}

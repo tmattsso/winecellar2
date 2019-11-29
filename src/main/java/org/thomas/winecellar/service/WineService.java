@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -281,6 +282,33 @@ public class WineService {
 
 	public List<WineRating> getRatings(Long parameter) {
 		return getRatings(repo.findById(parameter).get());
+	}
+
+	public LinkedHashMap<String, Integer> getGrapePopularity() {
+		final LinkedHashMap<String, Integer> map = new LinkedHashMap<>();
+
+		getWines().forEach(w -> w.getGrapes().forEach(grape -> {
+
+			if (!map.containsKey(grape)) {
+				map.put(grape, 0);
+			}
+			map.put(grape, map.get(grape) + 1);
+		}));
+
+		return map;
+	}
+
+	public List<String> getGrapesByPopularity() {
+		final LinkedHashMap<String, Integer> map = getGrapePopularity();
+		final List<String> top10 = map.keySet().stream().sorted((s1, s2) -> map.get(s2).compareTo(map.get(s1))).limit(8)
+				.collect(Collectors.toList());
+
+		top10.forEach(s -> map.remove(s));
+		final List<String> rest = map.keySet().stream().sorted().collect(Collectors.toList());
+
+		top10.addAll(rest);
+		return top10;
+
 	}
 
 	public List<String> getGrapes() {

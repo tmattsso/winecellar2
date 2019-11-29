@@ -15,9 +15,14 @@ import com.vaadin.flow.component.customfield.CustomField;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
+/**
+ * TODO: consider changing to Grid for filtering (and lazy laoding)
+ */
 @CssImport(value = "./styles/search-checkboxgroup.css", themeFor = "vaadin-checkbox-group")
 public class GrapeSearchFilter extends CustomField<Set<String>> {
 
@@ -29,7 +34,7 @@ public class GrapeSearchFilter extends CustomField<Set<String>> {
 
 	public GrapeSearchFilter(WineService service) {
 
-		allGrapes = service.getGrapes();
+		allGrapes = service.getGrapesByPopularity();
 
 		getElement().setAttribute("class", "grapesearchfilter");
 
@@ -47,7 +52,7 @@ public class GrapeSearchFilter extends CustomField<Set<String>> {
 	private void render() {
 		container.removeAll();
 
-		final String text = selected.isEmpty() ? "Any grape" : parseSelectionString();
+		final String text = selected.isEmpty() ? "No filter" : parseSelectionString();
 		final Button button = new Button(text);
 		container.add(button);
 
@@ -65,11 +70,30 @@ public class GrapeSearchFilter extends CustomField<Set<String>> {
 		d.getElement().setAttribute("theme", "fullwidth");
 		d.open();
 
+		final Span label = new Span("Select grapes to search for:");
+		vl.add(label);
+
+		final Button clear = new Button(String.format("Clear selection (%d selected)", selected.size()));
+		clear.addThemeVariants(ButtonVariant.MATERIAL_OUTLINED);
+		clear.setIcon(VaadinIcon.CLOSE.create());
+		clear.getElement().getStyle().set("margin-left", "auto");
+		clear.setEnabled(selected.size() > 0);
+
 		final CheckboxGroup<String> group = new CheckboxGroup<>();
 		group.addClassName("grapesSelector");
 		group.setItems(allGrapes);
 		group.setValue(selected);
 		group.addThemeVariants(CheckboxGroupVariant.MATERIAL_VERTICAL);
+
+		group.addValueChangeListener(e -> {
+			final int size = group.getSelectedItems().size();
+			clear.setEnabled(size > 0);
+			clear.setText(String.format("Clear selection (%d selected)", size));
+		});
+		clear.addClickListener(e -> {
+			group.setValue(new HashSet<>());
+		});
+		vl.add(clear);
 
 		final VerticalLayout scrollWrapper = new VerticalLayout(group);
 		scrollWrapper.setPadding(false);
@@ -82,7 +106,10 @@ public class GrapeSearchFilter extends CustomField<Set<String>> {
 
 		final Button ok = new Button("Apply", VaadinIcon.CHECK.create());
 		ok.addThemeVariants(ButtonVariant.MATERIAL_CONTAINED);
-		vl.add(ok);
+
+		final HorizontalLayout hl = new HorizontalLayout(ok, clear);
+		hl.setWidthFull();
+		vl.add(hl);
 
 		ok.addClickListener(e -> {
 			selected = group.getValue();
@@ -111,6 +138,11 @@ public class GrapeSearchFilter extends CustomField<Set<String>> {
 	protected void setPresentationValue(Set<String> newPresentationValue) {
 		selected = newPresentationValue;
 		render();
+	}
+
+	@Override
+	public void clear() {
+		setPresentationValue(new HashSet<>());
 	}
 
 }
