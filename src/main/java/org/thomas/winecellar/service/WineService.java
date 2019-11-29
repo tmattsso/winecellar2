@@ -73,7 +73,7 @@ public class WineService {
 		return repo.findByProducer(p);
 	}
 
-	public List<Wine> search(final String searchTerms, String producerId, String type) {
+	public List<Wine> search(final String searchTerms, String producerId, String type, String grapefilter) {
 
 		if (searchTerms == null) {
 			return new ArrayList<>();
@@ -86,8 +86,18 @@ public class WineService {
 			pId = null;
 		}
 
+		final Collection<String> grapes = new HashSet<>();
+		if (grapefilter != null) {
+			final String[] grape = grapefilter.split(",");
+			for (final String g : grape) {
+				grapes.add(g.trim());
+			}
+		}
+
 		final List<Wine> wines = getWines();
 		return wines.stream().filter(w -> w.getName() != null).filter(w -> {
+
+			// Producer ID
 
 			if (pId == null) {
 				return true;
@@ -101,6 +111,8 @@ public class WineService {
 			}
 		}).filter(w -> {
 
+			// Wine Type
+
 			if (type == null || type.isEmpty()) {
 				return true;
 			}
@@ -111,6 +123,18 @@ public class WineService {
 			}
 		}).filter(w -> {
 
+			// Grapes
+
+			if (grapes.isEmpty()) {
+				return true;
+			}
+
+			return w.getGrapes().stream().anyMatch(g -> grapes.contains(g));
+
+		}).filter(w -> {
+
+			// Text Search
+
 			final boolean nameMatch = match(searchTerms, w.getName());
 			final boolean producerMatch = match(searchTerms, w.getProducer());
 			final boolean countryMatch = match(searchTerms, w.getCountry());
@@ -119,6 +143,7 @@ public class WineService {
 			final boolean grapeMatch = match(searchTerms, w.getGrapes());
 
 			return nameMatch || producerMatch || countryMatch || regionMatch || subregionMatch || grapeMatch;
+
 		}).sorted().collect(Collectors.toList());
 	}
 
@@ -256,5 +281,10 @@ public class WineService {
 
 	public List<WineRating> getRatings(Long parameter) {
 		return getRatings(repo.findById(parameter).get());
+	}
+
+	public List<String> getGrapes() {
+		return getWines().stream().flatMap(w -> w.getGrapes().stream()).distinct().sorted()
+				.collect(Collectors.toList());
 	}
 }

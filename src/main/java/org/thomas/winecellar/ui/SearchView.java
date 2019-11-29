@@ -1,14 +1,19 @@
 package org.thomas.winecellar.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.thomas.winecellar.data.Producer;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineType;
 import org.thomas.winecellar.service.WineService;
+import org.thomas.winecellar.ui.components.GrapeSearchFilter;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.accordion.Accordion;
@@ -38,6 +43,7 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 	private ComboBox<WineType> filterType;
 
 	private final Grid<Wine> results;
+	private GrapeSearchFilter filterGrapes;
 
 	@Autowired
 	public SearchView(WineService service) {
@@ -71,6 +77,10 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		filterProducer.setWidth("100%");
 		filterProducer.setClearButtonVisible(true);
 		filterContent.add(filterProducer);
+
+		filterGrapes = new GrapeSearchFilter(service);
+		filterGrapes.setWidthFull();
+		filterContent.add(filterGrapes);
 
 		results = new Grid<>();
 		results.setWidth("100%");
@@ -106,6 +116,12 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 			}
 			runSearch(filters);
 		});
+		filterGrapes.addValueChangeListener(e -> {
+			if (!e.isFromClient()) {
+				return;
+			}
+			runSearch(filters);
+		});
 
 		results.addSelectionListener(e -> {
 			if (e.isFromClient() && !e.getAllSelectedItems().isEmpty()) {
@@ -127,6 +143,8 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 
 		final WineType type = filterType.getValue();
 
+		final Set<String> grapes = filterGrapes.getValue();
+
 		final Map<String, String> params = new HashMap<>();
 		params.put("q", terms);
 		if (producer != null) {
@@ -134,6 +152,9 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		}
 		if (type != null) {
 			params.put("t", type.name());
+		}
+		if (!grapes.isEmpty()) {
+			params.put("g", grapes.stream().collect(Collectors.joining(",")));
 		}
 		final QueryParameters qp = QueryParameters.simple(params);
 		UI.getCurrent().navigate("search", qp);
@@ -163,8 +184,13 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		if (list != null && !list.isEmpty()) {
 			t = list.get(0);
 		}
+		list = parameters.get("g");
+		String g = "";
+		if (list != null && !list.isEmpty()) {
+			g = list.get(0);
+		}
 
-		results.setItems(service.search(q, p, t));
+		results.setItems(service.search(q, p, t, g));
 
 		// Set values
 		searchBox.setValue(q);
@@ -181,6 +207,21 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		} else {
 			final WineType type = WineType.valueOf(t.toUpperCase());
 			filterType.setValue(type);
+		}
+		if (g.isEmpty()) {
+			filterGrapes.clear();
+		} else {
+
+			list = new ArrayList<>();
+			for (final String param : parameters.get("g")) {
+				final String[] split = param.split(",");
+				for (final String s : split) {
+					if (!s.isEmpty()) {
+						list.add(s.trim());
+					}
+				}
+			}
+			filterGrapes.setValue(new HashSet<>(list));
 		}
 
 	}

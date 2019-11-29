@@ -1,0 +1,7 @@
+
+
+:host(.grapesSelector) [part="group-field"] {
+	
+    display: flex;
+    flex-direction: column;
+}
