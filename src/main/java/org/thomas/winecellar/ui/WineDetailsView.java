@@ -87,6 +87,7 @@ public class WineDetailsView extends VerticalLayout implements HasUrlParameter<L
 		add(add);
 
 		final HorizontalLayout ratings = WineRatingView.createSummary(wine);
+		ratings.getStyle().set("cursor", "pointer");
 		ratings.addClickListener(e -> openRatings());
 		add(ratings);
 

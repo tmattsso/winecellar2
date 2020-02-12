@@ -14,13 +14,10 @@ For more information on Vaadin Flow, visit https://vaadin.com/flow.
 
 ## TODO:
 
-- update to 14.1
-
 - add flyway
 
 - add wine edit admin panel
 - add user login (pin enough?)
-- add vintage reviews/comments
 - add user wine list export
 - investigate theme issues
 - shared wish lists (tasting list)

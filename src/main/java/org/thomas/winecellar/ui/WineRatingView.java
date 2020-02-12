@@ -1,5 +1,7 @@
 package org.thomas.winecellar.ui;
 
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -50,6 +52,11 @@ public class WineRatingView extends VerticalLayout implements HasUrlParameter<Lo
 
 		add(new H3(wine.getName()));
 
+		final Button backButton = new Button("(back to wine details)",
+				e -> getUI().get().navigate(WineDetailsView.class, wine.getId()));
+		backButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+		add(backButton);
+
 		final Button addReview = new Button();
 		addReview.setText("Add a review");
 		addReview.setIcon(VaadinIcon.USER_STAR.create());
@@ -64,6 +71,7 @@ public class WineRatingView extends VerticalLayout implements HasUrlParameter<Lo
 
 		final Div scroller = new Div();
 		scroller.getStyle().set("overflow-y", "scroll");
+		scroller.setWidthFull();
 		add(scroller);
 
 		setHeightFull();
@@ -71,6 +79,7 @@ public class WineRatingView extends VerticalLayout implements HasUrlParameter<Lo
 
 		final VerticalLayout reviews = new VerticalLayout();
 		reviews.setPadding(false);
+		reviews.setWidthFull();
 		scroller.add(reviews);
 
 		ratings.forEach(r -> {
@@ -91,12 +100,17 @@ public class WineRatingView extends VerticalLayout implements HasUrlParameter<Lo
 		d.add(vl);
 
 		final RatingStars rating = new RatingStars();
+		rating.setRequiredIndicatorVisible(true);
 		vl.add(rating);
+
+		final int min = 1900;
+		final int max = LocalDate.now().get(ChronoField.YEAR);
 
 		final NumberField vintage = new NumberField("Vintage:");
 		vintage.setStep(1);
-		vintage.setMin(1900);
-		vintage.setMax(2030);
+		vintage.setMin(min);
+		vintage.setMax(max);
+		vintage.setPlaceholder("2012");
 		vintage.setWidthFull();
 		vl.add(vintage);
 
@@ -117,8 +131,8 @@ public class WineRatingView extends VerticalLayout implements HasUrlParameter<Lo
 			final Integer vintageVal = vintage.getValue() == null ? null : vintage.getValue().intValue();
 			if (vintageVal != null) {
 
-				if (vintageVal < 1900 || vintageVal > 2030) {
-					vintage.setErrorMessage("Value must be between 1900 and 2030 (or empty)");
+				if (vintageVal <= min || vintageVal >= max) {
+					vintage.setErrorMessage("Value must be between " + min + " and " + max + " (or empty)");
 					fails = true;
 				}
 			}
@@ -163,9 +177,21 @@ public class WineRatingView extends VerticalLayout implements HasUrlParameter<Lo
 			}
 		}
 
-		final Label ratingLabel = new Label(String.format("(%d reviews)", wine.getNumRatings()));
-		ratingLabel.getStyle().set("align-self", "flex-end");
-		ratingsLayout.add(ratingLabel);
+		if (wine.getNumRatings() == 0) {
+			final Span beFirstToRateLabel = new Span("Be the first to rate this wine!");
+			beFirstToRateLabel.getStyle().set("align-self", "flex-end");
+			ratingsLayout.add(beFirstToRateLabel);
+		} else {
+
+			final Span bolded = new Span(String.format("%.2f", wine.getRating()));
+			bolded.getStyle().set("align-self", "flex-end");
+			bolded.getStyle().set("font-weigth", "bolder");
+			ratingsLayout.add(bolded);
+
+			final Span ratingLabel = new Span(String.format(" (%d reviews)", wine.getNumRatings()));
+			ratingLabel.getStyle().set("align-self", "flex-end");
+			ratingsLayout.add(ratingLabel);
+		}
 
 		return ratingsLayout;
 	}
