@@ -91,7 +91,10 @@ public class WineService {
 		if (grapefilter != null) {
 			final String[] grape = grapefilter.split(",");
 			for (final String g : grape) {
-				grapes.add(g.trim());
+
+				if (!g.isEmpty()) {
+					grapes.add(g.trim());
+				}
 			}
 		}
 

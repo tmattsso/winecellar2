@@ -52,6 +52,7 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		setHeight("100%");
 
 		searchBox = new TextField("Search for anything:");
+		searchBox.focus();
 		add(searchBox);
 
 		final Accordion controls = new Accordion();
@@ -153,7 +154,7 @@ public class SearchView extends VerticalLayout implements HasViewTitle, AfterNav
 		if (type != null) {
 			params.put("t", type.name());
 		}
-		if (!grapes.isEmpty()) {
+		if (grapes != null && !grapes.isEmpty()) {
 			params.put("g", grapes.stream().collect(Collectors.joining(",")));
 		}
 		final QueryParameters qp = QueryParameters.simple(params);
