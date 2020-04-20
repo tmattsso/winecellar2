@@ -82,7 +82,7 @@ public class DummyDataGenerator {
 			e.printStackTrace();
 		}
 
-		demoUser = users.addUser("Thomas", "thomas@gmail.com");
+		demoUser = users.addUser("Thomas", "thomas.mattsson99@gmail.com");
 
 		final User u2 = users.addUser("User 2", "user2@gmail.com");
 

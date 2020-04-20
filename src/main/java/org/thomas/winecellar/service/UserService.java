@@ -37,6 +37,10 @@ public class UserService {
 		return user;
 	}
 
+	public boolean userExists(String email) {
+		return repo.getByEmail(email) != null;
+	}
+
 	public void update(User user) {
 		repo.save(user);
 	}

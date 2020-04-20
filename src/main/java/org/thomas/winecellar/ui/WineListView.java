@@ -1,6 +1,9 @@
 package org.thomas.winecellar.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.data.Wine;
 import org.thomas.winecellar.data.WineList;
@@ -60,10 +63,21 @@ public class WineListView extends VerticalLayout implements HasUrlParameter<Long
 
 	}
 
+	public static boolean isUserLoggedIn() {
+		return isUserLoggedIn(SecurityContextHolder.getContext().getAuthentication());
+	}
+
+	private static boolean isUserLoggedIn(Authentication authentication) {
+		return authentication != null && !(authentication instanceof AnonymousAuthenticationToken);
+	}
+
 	@Override
 	public void setParameter(BeforeEvent event, @OptionalParameter Long parameter) {
 
 		removeAll();
+
+		final Authentication userAuthentication = SecurityContextHolder.getContext().getAuthentication();
+		System.out.println(userAuthentication.getName());
 
 		final User user = cup.get();
 		if (user == null) {

@@ -16,5 +16,4 @@ public class Application extends SpringBootServletInitializer {
 
 		ctx.start();
 	}
-
 }

@@ -1,8 +1,11 @@
 package org.thomas.winecellar.ui;
 
+import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.thomas.winecellar.data.User;
 import org.thomas.winecellar.service.CurrentUserProvider;
 import org.thomas.winecellar.ui.components.DrawerComponent;
 
@@ -18,8 +21,6 @@ import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.spring.annotation.UIScope;
 import com.vaadin.flow.theme.Theme;
 import com.vaadin.flow.theme.material.Material;
@@ -30,7 +31,7 @@ import com.vaadin.flow.theme.material.Material;
 @CssImport(value = "./styles/notifications.css", themeFor = "vaadin-notification-card")
 @Theme(Material.class)
 @UIScope
-public class MainView extends AppLayout implements BeforeEnterObserver {
+public class MainView extends AppLayout {
 
 	private static final long serialVersionUID = -2453134437569568704L;
 
@@ -40,6 +41,7 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	private final H4 welcomeLabel = new H4();
 	private final Label title;
+	private final Label userLabel = new Label();
 
 	@Autowired
 	private CurrentUserProvider currentUser;
@@ -56,7 +58,9 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		search.addClassName("searchbutton");
 		search.addThemeVariants(ButtonVariant.LUMO_ICON, ButtonVariant.LUMO_TERTIARY);
 
-		addToNavbar(true, new DrawerToggle(), title, search);
+		userLabel.addClassName("userLabel");
+
+		addToNavbar(true, new DrawerToggle(), title, userLabel, search);
 
 		final Div welcome = new Div(welcomeLabel);
 		welcome.addClassName("welcome");
@@ -84,6 +88,13 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 
 	}
 
+	@PostConstruct
+	private void init() {
+		final User user = currentUser.get();
+		final String name = user.getName().split(" ")[0];
+		userLabel.setText(String.format("Welcome back, %s!", name));
+	}
+
 	@Override
 	public void showRouterLayoutContent(HasElement content) {
 		super.showRouterLayoutContent(content);
@@ -99,19 +110,9 @@ public class MainView extends AppLayout implements BeforeEnterObserver {
 		}
 	}
 
-	@Override
-	public void beforeEnter(BeforeEnterEvent event) {
-		if (currentUser.get() == null) {
-			event.rerouteTo(LoginView.class);
-		} else {
-			welcomeLabel.setText("Hi, " + currentUser.get().getName() + "!");
-		}
-	}
-
 	public void logout() {
 		LOG.info("Logging out user " + currentUser.get());
-		UI.getCurrent().getPage().executeJs(LoginView.LOCAL_STORAGE_REMOVE);
-		UI.getCurrent().navigate(LoginView.class);
+		UI.getCurrent().navigate("/logout");
 	}
 
 	// @Override

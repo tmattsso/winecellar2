@@ -35,3 +35,8 @@ body {
     margin-right: -1px;
     color: white;
 }
+
+label.userLabel {
+    font-size: var(--material-small-font-size);
+    padding-right: 10px;
+}
